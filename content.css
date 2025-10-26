@@ -8,12 +8,11 @@
   overflow: hidden;
 
   /* Dimensions will be set by the content inside it */
-  /* We use content-box to make sizing predictable */
   box-sizing: content-box;
 
-  /* Start hidden, popup.js will show it */
-  width: 0px;
-  height: 0px;
-  opacity: 0;
+  /* Initial size - will be resized by popup.js */
+  width: 420px;
+  height: 220px;
+  opacity: 1;
   transition: opacity 0.1s ease-in-out;
 }

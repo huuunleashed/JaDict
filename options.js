@@ -1,6 +1,15 @@
 // --- 0. Compatibility Layer for Firefox and Chromium ---
 // Use Chrome API on Chromium, Firefox API on Firefox
-const API = typeof browser !== 'undefined' && browser.runtime ? browser : chrome;
+const API = (() => {
+  if (typeof browser !== 'undefined' && browser.runtime) {
+    return browser;
+  }
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    return chrome;
+  }
+  console.error('JaDict: No extension API available');
+  return null;
+})();
 
 // This script runs on the options.html page
 

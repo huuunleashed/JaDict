@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "JaDict (Jacob Dictionary)",
-  "version": "1.2",
+  "version": "0.1",
   "description": "Tra cứu JaDict: tra từ và dịch câu ngoại tuyến/AI.",
   "permissions": [
     "storage",
@@ -14,8 +14,7 @@
     "default_title": "JaDict"
   },
   "background": {
-    "service_worker": "background.js",
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {

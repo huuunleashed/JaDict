@@ -1,6 +1,15 @@
 // --- 0. Compatibility Layer for Firefox and Chromium ---
 // Use Chrome API on Chromium, Firefox API on Firefox
-const API = typeof browser !== 'undefined' && browser.runtime ? browser : chrome;
+const API = (() => {
+  if (typeof browser !== 'undefined' && browser.runtime) {
+    return browser;
+  }
+  if (typeof chrome !== 'undefined' && chrome.runtime) {
+    return chrome;
+  }
+  console.error('JaDict: No extension API available');
+  return null;
+})();
 
 // This script runs on every page
 const POPUP_ID = 'quick-dict-popup-iframe';
@@ -42,6 +51,12 @@ document.addEventListener('mousedown', (e) => {
 // --- 3. Create and Position the Popup ---
 
 function createPopup(text, rect) {
+  // Safety check: Make sure extension runtime is available
+  if (!API || !API.runtime || !API.runtime.getURL) {
+    console.error('JaDict: Extension runtime not available');
+    return;
+  }
+
   // Remove any old popup first
   removePopup();
 
@@ -50,9 +65,14 @@ function createPopup(text, rect) {
   iframe.id = POPUP_ID;
 
   // Pass the selected text to the iframe via a URL parameter
-  const popupURL = new URL(API.runtime.getURL('popup.html'));
-  popupURL.searchParams.append('text', text);
-  iframe.src = popupURL.toString();
+  try {
+    const popupURL = new URL(API.runtime.getURL('popup.html'));
+    popupURL.searchParams.append('text', text);
+    iframe.src = popupURL.toString();
+  } catch (error) {
+    console.error('JaDict: Failed to create popup URL', error);
+    return;
+  }
 
   document.body.appendChild(iframe);
 
