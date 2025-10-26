@@ -16,6 +16,24 @@
 ✅ **Tự Động Phát Hiện Ngôn Ngữ** - Không cần chọn ngôn ngữ thủ công  
 ✅ **Multi-Browser** - Hoạt động trên Chrome, Edge, Brave, Chromium
 
+## 📸 Hình Ảnh Minh Họa
+
+> 💡 **Chú ý**: Thêm ảnh chụp màn hình vào thư mục `screenshots/` và uncomment các dòng dưới
+
+<!--
+### Demo Popup
+
+![Demo Popup](screenshots/popup-example.png)
+
+### Cài Đặt API Key
+
+![Settings](screenshots/settings.png)
+
+### Kết Quả Dịch
+
+![Translation Result](screenshots/demo.png)
+-->
+
 ---
 
 ## 📥 Cài Đặt
@@ -198,6 +216,8 @@ git push origin feature/your-feature
 
 - 🐛 **Report Bug**: [GitHub Issues](https://github.com/huuunleashed/jadict/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/huuunleashed/jadict/discussions)
+- 📧 **Email**: [huynhquochuu.huynh@gmail.com](mailto:huynhquochuu.huynh@gmail.com)
+- 📱 **Telegram**: [@huu_unleashed](https://t.me/huu_unleashed)
 
 ---
 
