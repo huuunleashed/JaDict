@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+  <h1>Cài đặt JaDict</h1>
+    
+    <div class="setting">
+      <label for="api-key">Mã API Gemini</label>
+      <p>Nhập khóa Google AI Studio của bạn. Bắt buộc để dịch câu bằng AI.</p>
+      <input type="password" id="api-key" placeholder="Dán mã AIzaSy... vào đây">
+    </div>
+
+    <div class="setting">
+      <label for="model-select">Chọn mô hình</label>
+      <p>Chọn mô hình Google miễn phí. Giới hạn: yêu cầu/phút (RPM), token/phút (TPM), yêu cầu/ngày (RPD).</p>
+      <select id="model-select">
+        <option value="gemini-2.5-flash">gemini-2.5-flash - 10 RPM / 250K TPM / 250 RPD</option>
+        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite - 15 RPM / 250K TPM / 1K RPD</option>
+        <option value="gemini-2.5-pro">gemini-2.5-pro - 2 RPM / 125K TPM / 50 RPD</option>
+      </select>
+    </div>
+
+    <button id="save-button">Lưu cài đặt</button>
+    <div id="status-message"></div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+/* This styles the iframe "container" itself */
+#quick-dict-popup-iframe {
+  position: absolute;
+  z-index: 99999999;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+
+  /* Dimensions will be set by the content inside it */
+  /* We use content-box to make sizing predictable */
+  box-sizing: content-box;
+
+  /* Start hidden, popup.js will show it */
+  width: 0px;
+  height: 0px;
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+}

@@ -1,0 +1,17 @@
+{
+  "en_en": {
+    "hello": "A greeting used when meeting someone.",
+    "world": "The earth, together with all of its countries and peoples.",
+    "extension": "A software component that adds a specific feature to an existing computer program."
+  },
+  "en_vi": {
+    "hello": "Xin chào",
+    "world": "Thế giới",
+    "dictionary": "Từ điển"
+  },
+  "vi_en": {
+    "xin chào": "Hello",
+    "thế giới": "World",
+    "từ điển": "Dictionary"
+  }
+}
