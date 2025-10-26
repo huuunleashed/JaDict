@@ -72,7 +72,7 @@ cd jadict
 1. Nhấp chuột phải vào **biểu tượng JaDict** trên thanh công cụ
 2. Chọn **Options** (hoặc **Tùy chọn**)
 3. Dán API Key vào ô **API Key**
-4. Chọn Model (mặc định: `gemini-2.5-flash`)
+4. Chọn Model (mặc định: `gemini-2.5-flash-lite` - để tiết kiệm token)
 5. Nhấp **Save** (Lưu)
 
 ✅ Xong! Extension đã sẵn sàng sử dụng!
@@ -104,8 +104,8 @@ cd jadict
 
 | Model | Tốc Độ | Chất Lượng | Khuyến Nghị |
 |-------|--------|----------|-----------|
-| **gemini-2.5-flash** | ⚡ Rất Nhanh | ⭐⭐⭐⭐ | ✅ Mặc Định |
-| **gemini-2.5-flash-lite** | ⚡⚡ Siêu Nhanh | ⭐⭐⭐ | Để tiết kiệm |
+| **gemini-2.5-flash** | ⚡ Rất Nhanh | ⭐⭐⭐⭐ | Để chất lượng cao |
+| **gemini-2.5-flash-lite** | ⚡⚡ Siêu Nhanh | ⭐⭐⭐ | ✅ Mặc Định (tiết kiệm token) |
 | **gemini-2.5-pro** | 🐢 Chậm | ⭐⭐⭐⭐⭐ | Cho kết quả tốt nhất |
 
 ---
@@ -147,8 +147,9 @@ cd jadict
 
 📌 **Tip 1:** Bôi đen **từng từ** để tra từ điển cục bộ nhanh hơn  
 📌 **Tip 2:** Bôi đen **câu hoàn chỉnh** để dùng AI dịch  
-📌 **Tip 3:** Sử dụng `gemini-2.5-flash-lite` để tiết kiệm quota API  
-📌 **Tip 4:** Extension hoạt động trên **mọi trang web** (bao gồm PDF viewer)
+📌 **Tip 3:** Mặc định dùng `gemini-2.5-flash-lite` để tiết kiệm quota API (1500 yêu cầu miễn phí/ngày)  
+📌 **Tip 4:** Upgrade lên `gemini-2.5-flash` nếu cần chất lượng cao hơn  
+📌 **Tip 5:** Extension hoạt động trên **mọi trang web** (bao gồm PDF viewer)
 
 ---
 

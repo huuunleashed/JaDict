@@ -7,7 +7,7 @@ const API = typeof browser !== 'undefined' && browser.runtime ? browser : chrome
 
 const GEMINI_MODEL_OPTIONS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro'];
 const GEMINI_MODEL_SET = new Set(GEMINI_MODEL_OPTIONS);
-const GEMINI_DEFAULT_MODEL = GEMINI_MODEL_OPTIONS[0];
+const GEMINI_DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 
 // Listens for messages from popup.js
 API.runtime.onMessage.addListener((request, sender, sendResponse) => {
