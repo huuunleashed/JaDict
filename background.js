@@ -450,17 +450,39 @@ function formatWordInsights({ term, modelId, fromLang, toLang, data }) {
           sections.push(`<div class="ai-sense"><span class="ai-label">Nghĩa ${senseNumber}:</span> ${escapeHtml(sense.definition || '')}</div>`);
 
           if (sense.explanation) {
-            sections.push(`<div class="ai-note">${escapeHtml(sense.explanation)}</div>`);
+            sections.push(`<div class="collapsible-section">
+              <div class="collapsible-header">
+                <span class="ai-label">Giải thích ngắn</span>
+                <span class="collapse-icon">▼</span>
+              </div>
+              <div class="collapsible-content collapsed">
+                <div class="ai-note">${escapeHtml(sense.explanation)}</div>
+              </div>
+            </div>`);
           }
 
           if (Array.isArray(sense.usageExamples) && sense.usageExamples.length > 0) {
-            sections.push('<div class="ai-label">Ví dụ sử dụng:</div>');
-            sections.push(formatList(sense.usageExamples));
+            sections.push(`<div class="collapsible-section">
+              <div class="collapsible-header">
+                <span class="ai-label">Ví dụ sử dụng</span>
+                <span class="collapse-icon">▼</span>
+              </div>
+              <div class="collapsible-content collapsed">
+                ${formatList(sense.usageExamples)}
+              </div>
+            </div>`);
           }
 
           if (Array.isArray(sense.usageNotes) && sense.usageNotes.length > 0) {
-            sections.push('<div class="ai-label">Lưu ý sử dụng:</div>');
-            sections.push(formatList(sense.usageNotes));
+            sections.push(`<div class="collapsible-section">
+              <div class="collapsible-header">
+                <span class="ai-label">Lưu ý sử dụng</span>
+                <span class="collapse-icon">▼</span>
+              </div>
+              <div class="collapsible-content collapsed">
+                ${formatList(sense.usageNotes)}
+              </div>
+            </div>`);
           }
 
           if (Array.isArray(sense.synonyms) && sense.synonyms.length > 0) {
@@ -507,12 +529,27 @@ function formatSentenceInsights({ modelId, fromLang, toLang, data }) {
   }
 
   if (data.summary) {
-    sections.push(`<div class="ai-note"><span class="ai-label">Giải thích ngắn:</span> ${escapeHtml(data.summary)}</div>`);
+    sections.push(`<div class="collapsible-section">
+      <div class="collapsible-header">
+        <span class="ai-label">Giải thích ngắn</span>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="collapsible-content collapsed">
+        <div class="ai-note">${escapeHtml(data.summary)}</div>
+      </div>
+    </div>`);
   }
 
   if (Array.isArray(data.keyPoints) && data.keyPoints.length > 0) {
-    sections.push('<div class="ai-label">Ý chính:</div>');
-    sections.push(formatList(data.keyPoints));
+    sections.push(`<div class="collapsible-section">
+      <div class="collapsible-header">
+        <span class="ai-label">Ý chính</span>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="collapsible-content collapsed">
+        ${formatList(data.keyPoints)}
+      </div>
+    </div>`);
   }
 
   sections.push('</div>');

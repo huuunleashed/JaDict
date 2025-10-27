@@ -1,3 +1,9 @@
+let isPointerResizing = false;
+let pointerId = null;
+let startWidth = 0;
+let startHeight = 0;
+let startX = 0;
+let startY = 0;
 // --- 0. Compatibility Layer for Firefox and Chromium ---
 // Use Chrome API on Chromium, Firefox API on Firefox
 const API = (() => {
@@ -39,12 +45,6 @@ if (container) {
 }
 
 let resizeMessageFrame = null;
-let isPointerResizing = false;
-let pointerId = null;
-let startWidth = 0;
-let startHeight = 0;
-let startX = 0;
-let startY = 0;
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -188,14 +188,17 @@ async function requestLookup() {
     if (response && response.status === "success") {
       contentDiv.innerHTML = response.data;
       addCopyButtons();
+      addCollapsibleHandlers();
     } else {
       const message = response?.data || 'Lỗi chưa xác định';
       contentDiv.textContent = `Lỗi: ${message}`;
+      resetContainerHeight();
     }
   } catch (error) {
     const message = error?.message || error;
     contentDiv.textContent = `Lỗi: ${message}`;
   } finally {
+    resetContainerHeight();
     // After content is set, tell the parent page to resize
     sendResizeMessage();
   }
@@ -267,6 +270,57 @@ function addCopyButtons() {
 
     heading.appendChild(copyBtn);
   });
+}
+
+// --- Add Collapsible Section Handlers ---
+function addCollapsibleHandlers() {
+  const collapsibleHeaders = contentDiv.querySelectorAll('.collapsible-header');
+  
+  collapsibleHeaders.forEach((header) => {
+    // Remove existing listener if any
+    const newHeader = header.cloneNode(true);
+    header.parentNode.replaceChild(newHeader, header);
+    
+    newHeader.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const content = newHeader.nextElementSibling;
+      
+      if (!content || !content.classList.contains('collapsible-content')) {
+        return;
+      }
+      
+      const isExpanded = content.classList.contains('expanded');
+      
+      if (isExpanded) {
+        // Collapse
+        content.classList.remove('expanded');
+        content.classList.add('collapsed');
+        newHeader.classList.remove('expanded');
+      } else {
+        // Expand
+        content.classList.remove('collapsed');
+        content.classList.add('expanded');
+        newHeader.classList.add('expanded');
+      }
+      
+      resetContainerHeight();
+      // Notify parent about size change
+      scheduleResizeMessage();
+    });
+  });
+}
+function resetContainerHeight() {
+  if (!container) {
+    return;
+  }
+
+  if (isPointerResizing) {
+    return;
+  }
+  
+  if (container.style.height) {
+    container.style.height = '';
+  }
 }
 
 // --- Extract Translation Text ---
