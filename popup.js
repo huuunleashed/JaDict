@@ -33,11 +33,180 @@ const MAX_WIDTH = 1280;
 const MIN_HEIGHT = 220;
 const MAX_HEIGHT = 800;
 
-const COPY_ICONS = {
-  copy: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3h6a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 3v1a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  success: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 12.5 9.5 17.5 19.5 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  error: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+const ALLOWED_TAGS = new Set([
+  'DIV', 'SPAN', 'B', 'I', 'UL', 'LI', 'P', 'STRONG', 'EM'
+]);
+
+const ALLOWED_ATTRS = {
+  DIV: new Set(['class']),
+  SPAN: new Set(['class']),
+  UL: new Set(['class']),
+  LI: new Set(['class'])
 };
+
+const ALLOWED_CLASSES = new Set([
+  'ai-section', 'ai-heading', 'ai-translation', 'ai-label', 'ai-entry',
+  'ai-sense', 'ai-note', 'ai-pos', 'collapsible-section', 'collapsible-header',
+  'collapsible-content', 'collapsed', 'expanded', 'collapse-icon', 'ai-bullets',
+  'dict-section', 'dict-heading', 'dict-body'
+]);
+
+function renderSanitizedHtml(target, html) {
+  if (!target) {
+    return;
+  }
+
+  const fragment = sanitizeHtmlToFragment(html);
+  target.replaceChildren(fragment);
+}
+
+function sanitizeHtmlToFragment(html) {
+  const fragment = document.createDocumentFragment();
+
+  if (typeof html !== 'string') {
+    return fragment;
+  }
+
+  const parser = new DOMParser();
+  const parsed = parser.parseFromString(html, 'text/html');
+
+  parsed.body.childNodes.forEach((node) => {
+    const cleanNode = sanitizeNode(node);
+    if (cleanNode) {
+      fragment.appendChild(cleanNode);
+    }
+  });
+
+  return fragment;
+}
+
+function sanitizeNode(node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return document.createTextNode(node.textContent || '');
+  }
+
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const tagName = node.tagName.toUpperCase();
+    if (!ALLOWED_TAGS.has(tagName)) {
+      // Skip disallowed tag but keep traversing children
+      const fragment = document.createDocumentFragment();
+      node.childNodes.forEach((child) => {
+        const nested = sanitizeNode(child);
+        if (nested) {
+          fragment.appendChild(nested);
+        }
+      });
+      return fragment;
+    }
+
+    const cleanElement = document.createElement(tagName.toLowerCase());
+    const allowedAttributes = ALLOWED_ATTRS[tagName] || new Set();
+
+    for (const { name, value } of Array.from(node.attributes)) {
+      const attrName = name.toLowerCase();
+      if (!allowedAttributes.has(attrName)) {
+        continue;
+      }
+
+      if (attrName === 'class') {
+        const filteredClasses = value
+          .split(/\s+/)
+          .filter((cls) => ALLOWED_CLASSES.has(cls));
+        if (filteredClasses.length > 0) {
+          cleanElement.setAttribute('class', filteredClasses.join(' '));
+        }
+        continue;
+      }
+
+      cleanElement.setAttribute(attrName, value);
+    }
+
+    node.childNodes.forEach((child) => {
+      const sanitizedChild = sanitizeNode(child);
+      if (sanitizedChild) {
+        cleanElement.appendChild(sanitizedChild);
+      }
+    });
+
+    return cleanElement;
+  }
+
+  return null;
+}
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const COPY_ICON_DEFS = {
+  copy: [
+    {
+      tag: 'path',
+      attrs: {
+        d: 'M9 3h6a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1V5a2 2 0 0 1 2-2Z',
+        stroke: 'currentColor',
+        'stroke-width': '1.8',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }
+    },
+    {
+      tag: 'path',
+      attrs: {
+        d: 'M9 3v1a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V3',
+        stroke: 'currentColor',
+        'stroke-width': '1.8',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }
+    }
+  ],
+  success: [
+    {
+      tag: 'path',
+      attrs: {
+        d: 'M4.5 12.5 9.5 17.5 19.5 7.5',
+        stroke: 'currentColor',
+        'stroke-width': '2',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }
+    }
+  ],
+  error: [
+    {
+      tag: 'path',
+      attrs: {
+        d: 'M5 5l14 14M19 5L5 19',
+        stroke: 'currentColor',
+        'stroke-width': '2',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round'
+      }
+    }
+  ]
+};
+const COPY_ICON_CACHE = new Map();
+
+function createSvgFromDef(defKey) {
+  const definition = COPY_ICON_DEFS[defKey] || COPY_ICON_DEFS.copy;
+  if (COPY_ICON_CACHE.has(defKey)) {
+    return COPY_ICON_CACHE.get(defKey).cloneNode(true);
+  }
+
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+
+  definition.forEach((segment) => {
+    const element = document.createElementNS(SVG_NS, segment.tag);
+    Object.entries(segment.attrs).forEach(([attr, value]) => {
+      element.setAttribute(attr, value);
+    });
+    svg.appendChild(element);
+  });
+
+  COPY_ICON_CACHE.set(defKey, svg);
+  return svg.cloneNode(true);
+}
 
 if (container) {
   const initialWidth = clamp(container.offsetWidth, MIN_WIDTH, MAX_WIDTH);
@@ -51,9 +220,9 @@ function clamp(value, min, max) {
 }
 
 function setCopyIcon(button, state) {
-  const icon = COPY_ICONS[state] || COPY_ICONS.copy;
+  const icon = createSvgFromDef(state);
   button.classList.remove('copied', 'error');
-  button.innerHTML = icon;
+  button.replaceChildren(icon);
 
   if (state === 'success') {
     button.classList.add('copied');
@@ -186,7 +355,7 @@ async function requestLookup() {
     });
 
     if (response && response.status === "success") {
-      contentDiv.innerHTML = response.data;
+      renderSanitizedHtml(contentDiv, response.data);
       addCopyButtons();
       addCollapsibleHandlers();
     } else {
