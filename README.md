@@ -22,7 +22,39 @@
 
 ---
 
-## 📥 Hướng Dẫn Cài Đặt Chi Tiết
+## � Build từ Source (dành cho Firefox Reviewers)
+
+Các bước dưới đây tạo ra đúng bộ file phát hành (`dist/jadict-chrome.zip`, `dist/jadict-firefox.zip`, `dist/jadict-firefox.xpi`).
+
+**Yêu cầu hệ thống & môi trường**
+- Hệ điều hành: Windows 10+, macOS 13+, hoặc bất kỳ Linux distro gần đây
+- Node.js **>= 18.0.0** (đã kiểm thử với Node 18 LTS)
+- npm **>= 9.0.0** (đi kèm Node 18)
+
+**1. Lấy source và cài phụ thuộc**
+```bash
+git clone https://github.com/huuunleashed/jadict.git
+cd jadict
+npm install
+```
+
+**2. Build Chromium (Manifest V3)**
+```bash
+npm run build:chrome
+```
+Kết quả: thư mục `dist/chrome/` và file `dist/jadict-chrome.zip`.
+
+**3. Build Firefox (Manifest V2)**
+```bash
+npm run build:firefox
+```
+Kết quả: thư mục `dist/firefox/`, file `dist/jadict-firefox.zip`, và bản sao `dist/jadict-firefox.xpi` dùng để nộp cho Mozilla.
+
+Hai lệnh build gọi script `scripts/build.js`; script này thực hiện toàn bộ thao tác kỹ thuật (sao chép file, dùng `manifest.firefox.json` cho bản Firefox, đóng gói bằng `adm-zip`). Không cần các bước thủ công bổ sung.
+
+---
+
+## �📥 Hướng Dẫn Cài Đặt Chi Tiết
 
 ### 📋 Yêu Cầu Hệ Thống
 
