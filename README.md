@@ -85,35 +85,35 @@ cd jadict
    - Icon JaDict hiển thị trên thanh công cụ trình duyệt
    - Trạng thái hiển thị: **Enabled** (Đã bật)
 
+> 📦 **Muốn đóng gói để phát hành?** Cài Node.js ≥ 18, chạy `npm install` rồi `npm run build:chrome`. File `dist/jadict-chrome.zip` sẵn sàng để upload lên Chrome Web Store hoặc phân phối nội bộ.
+
 ---
 
 #### **B. Trên Firefox / Zen Browser**
 
-**Bước 1: Tải Source Code**
+**Bước 1: Tạo gói build dành riêng cho Firefox**
 
-Giống như hướng dẫn ở phần Chromium ở trên (Clone hoặc Download ZIP)
+1. Cài Node.js ≥ 18 (nếu chưa có).
+2. Mở terminal tại thư mục dự án và chạy `npm install`.
+3. Chạy `npm run build:firefox` để sinh:
+   - Thư mục `dist/firefox/` chứa bản unpacked (manifest v2).
+   - File `dist/jadict-firefox.zip` và bản sao `dist/jadict-firefox.xpi` sẵn sàng để gửi lên Mozilla.
 
-**Bước 2: Load Temporary Extension**
+**Bước 2: Ký và cài đặt vĩnh viễn**
 
-1. Mở trình duyệt và nhập vào thanh địa chỉ:
-   ```
-   about:debugging#/runtime/this-firefox
-   ```
+1. Đăng nhập [Firefox Add-ons Developer Hub](https://addons.mozilla.org/developers/).
+2. Chọn **Submit a New Add-on** → upload file `dist/jadict-firefox.zip` (hoặc `.xpi`).
+3. Đợi Mozilla ký. Tải file `.xpi` đã ký về máy.
+4. Mở `about:addons` → biểu tượng bánh răng → **Install Add-on From File...** → chọn file `.xpi` đã ký → xác nhận cài đặt.
 
-2. Click vào **This Firefox** (hoặc "This Zen") ở thanh bên trái
+> 💡 **Cài nội bộ (unsigned):** trên Firefox Developer Edition/Nightly bạn có thể đặt `xpinstall.signatures.required = false` trong `about:config`, rồi kéo thả file `.xpi` để cài thủ công.
 
-3. Click nút **Load Temporary Add-on...** (Tải tiện ích tạm thời)
+**Bước 3 (tùy chọn): Load tạm thời để debug**
 
-4. Điều hướng đến thư mục `jadict`
-
-5. Chọn file **`manifest.json`** và click **Open**
-
-6. Extension xuất hiện với tên **JaDict** trong danh sách **Temporary Extensions**
-
-> ⚠️ **Lưu ý quan trọng về Firefox:**
-> - Extension sẽ **tự động bị gỡ bỏ** khi đóng trình duyệt
-> - Bạn cần load lại extension mỗi khi khởi động Firefox
-> - Để cài đặt vĩnh viễn, cần package extension thành file `.xpi` và submit lên Firefox Add-ons (hướng dẫn nâng cao, không nằm trong phạm vi tài liệu này)
+1. Truy cập `about:debugging#/runtime/this-firefox`.
+2. Chọn **Load Temporary Add-on...**.
+3. Điều hướng tới thư mục `dist/firefox/` và chọn file `manifest.json` bên trong.
+4. Extension xuất hiện trong danh sách **Temporary Extensions** cho đến khi bạn đóng trình duyệt.
 
 ---
 
@@ -382,13 +382,14 @@ JaDict được phát triển và kiểm thử kỹ lưỡng trên nhiều trìn
 | **Opera** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based |
 | **Vivaldi** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based, advanced features |
 | **Chromium** | ✅ Hoạt động hoàn hảo | Any | Open-source base |
-| **Firefox** | ⚠️ Tạm thời | 109+ | Phải load lại mỗi lần khởi động |
-| **Zen Browser** | ⚠️ Tạm thời | Latest | Firefox-based |
-| **LibreWolf** | ⚠️ Tạm thời | Latest | Privacy-enhanced Firefox |
+| **Firefox** | ✅ Cần gói & ký | 109+ | Build `npm run build:firefox`, upload AMO để nhận `.xpi` đã ký |
+| **Zen Browser** | ✅ Cần gói & ký | Latest | Cài file `.xpi` đã ký hoặc bật chế độ developer |
+| **LibreWolf** | ✅ Cần gói & ký | Latest | Hỗ trợ cài `.xpi` đã ký / tắt signature bắt buộc |
 
 **Giải thích trạng thái:**
 - ✅ **Hoạt động hoàn hảo:** Cài đặt một lần, dùng vĩnh viễn
-- ⚠️ **Tạm thời:** Extension bị gỡ khi đóng trình duyệt (do giới hạn của Firefox API)
+- ✅ **Cần gói & ký:** Cần build `dist/jadict-firefox.zip` và cài `.xpi` đã ký bởi Mozilla hoặc chế độ developer
+- ⚠️ **Tạm thời:** Chỉ dành cho mục đích debug, bị gỡ khi đóng trình duyệt
 
 > 💡 **Khuyến nghị:** Dùng trình duyệt **Chromium-based** (Chrome, Edge, Brave) để có trải nghiệm tốt nhất.
 

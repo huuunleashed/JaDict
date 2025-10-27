@@ -35,8 +35,10 @@ API.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 // Provide a toolbar entry point for the options page
-if (API.action && API.action.onClicked) {
-  API.action.onClicked.addListener(() => {
+const ACTION_API = API?.action || API?.browserAction;
+
+if (ACTION_API && ACTION_API.onClicked) {
+  ACTION_API.onClicked.addListener(() => {
     API.runtime.openOptionsPage().catch(err => {
       console.error("Không mở được trang cài đặt:", err);
     });

@@ -1,0 +1,13 @@
+{
+  "name": "jadict-extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build:chrome": "node scripts/build.js chrome",
+    "build:firefox": "node scripts/build.js firefox",
+    "build:all": "npm run build:chrome && npm run build:firefox"
+  },
+  "devDependencies": {
+    "adm-zip": "^0.5.10"
+  }
+}
