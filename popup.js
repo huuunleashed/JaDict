@@ -230,21 +230,23 @@ function addCopyButtons() {
 
     // Create copy button with icon
     const copyBtn = document.createElement('button');
-  copyBtn.type = 'button';
-  copyBtn.className = 'copy-button';
-  copyBtn.title = 'Copy dịch';
-  setCopyIcon(copyBtn, 'copy');
+    copyBtn.type = 'button';
+    copyBtn.className = 'copy-button';
+    copyBtn.title = 'Copy dịch';
+    setCopyIcon(copyBtn, 'copy');
+    
+    // Prevent any scroll behavior
+    copyBtn.style.touchAction = 'manipulation';
 
     // Get the translation/content to copy
     copyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
+      
       const textToCopy = getTranslationText(section);
       
       if (!textToCopy) {
-        return;
-      }
-
-      if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
         setCopyIcon(copyBtn, 'error');
         setTimeout(() => {
           setCopyIcon(copyBtn, 'copy');
@@ -252,7 +254,8 @@ function addCopyButtons() {
         return;
       }
 
-      navigator.clipboard.writeText(textToCopy)
+      // Use fallback copy method that works in iframes
+      copyToClipboard(textToCopy)
         .then(() => {
           // Show feedback
           setCopyIcon(copyBtn, 'success');
@@ -266,7 +269,9 @@ function addCopyButtons() {
             setCopyIcon(copyBtn, 'copy');
           }, 1500);
         });
-    });
+      
+      return false;
+    }, { passive: false });
 
     heading.appendChild(copyBtn);
   });
@@ -327,14 +332,71 @@ function resetContainerHeight() {
 function getTranslationText(section) {
   const parts = [];
   
-  // Get translation
+  // Get translation heading and content
   const translation = section.querySelector('.ai-translation');
   if (translation) {
     const text = translation.textContent.replace(/^Bản dịch:\s*/, '').trim();
     if (text) parts.push(text);
   }
   
-  return parts.join('\n');
+  return parts.join('\n').trim();
+}
+
+// --- Copy to Clipboard with Fallback ---
+function copyToClipboard(text) {
+  return new Promise((resolve, reject) => {
+    // Try modern Clipboard API first
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(text)
+        .then(resolve)
+        .catch(() => {
+          // Fallback to execCommand if Clipboard API fails
+          fallbackCopy(text) ? resolve() : reject(new Error('Copy failed'));
+        });
+    } else {
+      // Fallback for older browsers or iframe restrictions
+      fallbackCopy(text) ? resolve() : reject(new Error('Copy failed'));
+    }
+  });
+}
+
+// --- Fallback Copy Method Using execCommand ---
+function fallbackCopy(text) {
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    
+    // Position outside viewport to avoid visual disruption
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '-9999px';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.style.opacity = '0';
+    textArea.style.pointerEvents = 'none';
+    textArea.style.zIndex = '-9999';
+    
+    document.body.appendChild(textArea);
+    
+    // Select and copy text
+    textArea.focus();
+    textArea.select();
+    
+    const successful = document.execCommand('copy');
+    
+    // Clean up
+    document.body.removeChild(textArea);
+    
+    return successful;
+  } catch (error) {
+    console.error('Fallback copy failed:', error);
+    return false;
+  }
 }
 
 requestLookup();

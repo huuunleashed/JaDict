@@ -5,7 +5,8 @@
   "description": "Tra cứu JaDict: tra từ và dịch câu ngoại tuyến/AI.",
   "permissions": [
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "clipboardWrite"
   ],
   "host_permissions": [
     "<all_urls>"

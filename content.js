@@ -42,8 +42,23 @@ document.addEventListener('mousedown', (e) => {
   // Don't remove popup if the click is on the selection itself
   // or inside the popup.
   const popup = document.getElementById(POPUP_ID);
-  if (popup && !popup.contains(e.target) && window.getSelection().toString().trim().length === 0) {
-    removePopup();
+  
+  // Check if click is inside popup iframe or its contents
+  if (popup) {
+    // If click target is the iframe itself, don't remove
+    if (e.target === popup) {
+      return;
+    }
+    
+    // If popup contains the target (inside iframe), don't remove
+    if (popup.contains(e.target)) {
+      return;
+    }
+    
+    // Check if selection is empty (user didn't just select text)
+    if (window.getSelection().toString().trim().length === 0) {
+      removePopup();
+    }
   }
 });
 
@@ -63,6 +78,7 @@ function createPopup(text, rect) {
   // Create an iframe for CSS isolation
   const iframe = document.createElement('iframe');
   iframe.id = POPUP_ID;
+  iframe.allow = "clipboard-write"; // Grant clipboard permission
 
   // Pass the selected text to the iframe via a URL parameter
   try {
@@ -137,29 +153,36 @@ window.addEventListener('message', (event) => {
   if (
     !iframe || 
     event.source !== iframe.contentWindow || 
-    !event.data || 
-    event.data.type !== 'QUICK_DICT_RESIZE'
+    !event.data
   ) {
     // This is not our message, ignore it
     return;
   }
   
-  // We trust this message because we checked its source and type
-  const { width, height } = event.data;
+  // Handle resize messages
+  if (event.data.type === 'QUICK_DICT_RESIZE') {
+    const { width, height } = event.data;
 
-  if (iframe) {
-    iframe.style.width = `${Math.ceil(width) + 1}px`;
-    iframe.style.height = `${Math.ceil(height) + 1}px`;
-    iframe.style.opacity = '1';
+    if (iframe) {
+      iframe.style.width = `${Math.ceil(width) + 1}px`;
+      iframe.style.height = `${Math.ceil(height) + 1}px`;
+      iframe.style.opacity = '1';
 
-    // Now that we have the *real* size, re-run position logic
-    // to check for edge-of-screen collisions
-    const selection = window.getSelection();
-    if(selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      positionPopup(iframe, rect);
+      // Now that we have the *real* size, re-run position logic
+      // to check for edge-of-screen collisions
+      const selection = window.getSelection();
+      if(selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        positionPopup(iframe, rect);
+      }
     }
+  }
+  
+  // Handle click events from inside popup (to prevent scroll-to-top)
+  if (event.data.type === 'POPUP_CLICK') {
+    // Popup is being interacted with, prevent any page-level behavior
+    event.preventDefault();
   }
 }, false);
 
