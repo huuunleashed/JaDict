@@ -161,13 +161,20 @@ cd jadict
 
 2. **Tạo API Key:**
    - Click nút **Create API key** (Tạo khóa API)
-   - Chọn **Create API key in new project** (Tạo trong dự án mới)
+   - <img width="774" height="237" alt="image" src="https://github.com/user-attachments/assets/683fca82-1698-4ea5-a4e7-984b6a12ac20" />
+   - Chọn **Create a new key** và **Create project** (Tạo trong dự án mới)
+   - <img width="505" height="285" alt="image" src="https://github.com/user-attachments/assets/0a4a5d66-8b44-406d-b660-599f799dc867" />
+   - Nhập tên dự án mới và nhấn **Create project** (Tạo dự án mới)
+   - <img width="503" height="211" alt="image" src="https://github.com/user-attachments/assets/f3c2ac2b-a718-41f7-8d3e-78883056bd32" />
+   - Sau đó, xác minh tên API key và nhấn **Create key** (Tạo key mới)
+   - <img width="494" height="264" alt="image" src="https://github.com/user-attachments/assets/405fef99-cc8f-44ed-b5b9-06b5fb2af034" />
    - Đợi 5-10 giây để Google xử lý
 
 3. **Copy API Key:**
    - API key sẽ hiển thị dạng: `AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXX`
    - Click vào icon **Copy** hoặc bôi đen và copy thủ công
-   - Lưu key vào file text hoặc ghi chú an toàn
+   - <img width="769" height="309" alt="image" src="https://github.com/user-attachments/assets/a6beaa30-8879-4823-a3f4-89ea8afa2a80" />
+   - Lưu key vào file text hoặc ghi chú an toàn (hoặc cứ để trong clipboard và xoá sau)
 
 > 🔒 **Bảo Mật API Key:**
 > - **KHÔNG BAO GIỜ** chia sẻ API key với người khác
@@ -245,21 +252,8 @@ Khi bạn bôi đen **một từ tiếng Anh**, JaDict sẽ:
   - Các nghĩa khác của từ
 
 **Ví dụ:**
-```
-Bôi đen: "ubiquitous"
 
-Kết quả hiển thị:
-┌────────────────────────────────────────┐
-│ 📖 Từ điển:                            │
-│ có mặt khắp nơi, phổ biến rộng rãi     │
-│                                        │
-│ 🤖 AI (Gemini 2.5 Flash Lite):        │
-│ (adj) có mặt ở khắp mọi nơi            │
-│                                        │
-│ Ví dụ: "Smartphones are ubiquitous    │
-│ in modern society."                    │
-└────────────────────────────────────────┘
-```
+<img width="912" height="633" alt="image" src="https://github.com/user-attachments/assets/74dff363-10ec-4ff5-ad98-75c844a9ba08" />
 
 #### **2. Dịch Câu (Tiếng Anh → Tiếng Việt)**
 
@@ -269,42 +263,16 @@ Khi bạn bôi đen **một câu hoàn chỉnh**, AI sẽ:
 - Giải thích các thành phần quan trọng
 
 **Ví dụ:**
-```
-Bôi đen: "Despite the heavy rain, the match continued."
 
-Kết quả:
-┌────────────────────────────────────────┐
-│ 🤖 Dịch:                               │
-│ Mặc dù mưa lớn, trận đấu vẫn tiếp tục. │
-│                                        │
-│ Giải thích:                            │
-│ - despite = mặc dù (preposition)       │
-│ - heavy rain = mưa lớn                 │
-│ - continued = tiếp tục (past tense)    │
-└────────────────────────────────────────┘
-```
+<img width="1085" height="878" alt="image" src="https://github.com/user-attachments/assets/09887613-fedf-467a-b12d-9c1b4b8026e8" />
 
 #### **3. Dịch Ngược (Tiếng Việt → Tiếng Anh)**
 
 JaDict **tự động phát hiện** ngôn ngữ. Khi bạn bôi đen tiếng Việt:
 
 **Ví dụ:**
-```
-Bôi đen: "Tôi muốn học lập trình để trở thành developer"
 
-Kết quả:
-┌────────────────────────────────────────┐
-│ 🤖 Translation:                        │
-│ I want to learn programming to become  │
-│ a developer                            │
-│                                        │
-│ Phân tích:                             │
-│ - muốn = want to                       │
-│ - học = learn                          │
-│ - lập trình = programming              │
-│ - trở thành = become                   │
-└────────────────────────────────────────┘
-```
+<img width="975" height="712" alt="image" src="https://github.com/user-attachments/assets/a61c5e07-4393-4538-a30c-8d16bff3ee66" />
 
 ### 🎨 Tính Năng Nâng Cao
 
