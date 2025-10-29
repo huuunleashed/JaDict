@@ -1,12 +1,68 @@
-/* This styles the content *inside* the iframe */
+﻿/* This styles the content *inside* the iframe */
+:root {
+  color-scheme: light;
+  --background-color: #ffffff;
+  --text-color: #1a1a1a;
+  --panel-border: #e0e6f0;
+  --panel-bg-start: #ffffff;
+  --panel-bg-end: #f6f9ff;
+  --panel-shadow: rgba(255, 255, 255, 0.6);
+  --primary-color: #005fcc;
+  --primary-strong: #0b3d91;
+  --secondary-text: #1f2a44;
+  --note-text: #1f2a44;
+  --toggle-color: #5b6c94;
+  --loader-track: #f3f3f3;
+  --loader-head: #005fcc;
+  --grip-color: #7a8a99;
+  --dict-border: #d1dcf5;
+  --button-bg: #f0f5ff;
+  --button-border: #b3d9ff;
+  --button-hover: #e0ecff;
+  --collapsible-bg: #f5f8ff;
+  --collapsible-hover: #e8f0ff;
+  --collapse-icon: #5b6c94;
+  --copy-default: #0b57d0;
+  --copy-success: #1f8b4c;
+  --copy-error: #b3261e;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background-color: #0f172a;
+  --text-color: #e5e7ff;
+  --panel-border: #1f2a44;
+  --panel-bg-start: #141d33;
+  --panel-bg-end: #0f172a;
+  --panel-shadow: rgba(17, 24, 39, 0.6);
+  --primary-color: #82aaff;
+  --primary-strong: #a5bfff;
+  --secondary-text: #d1dcff;
+  --note-text: #c7d3ff;
+  --toggle-color: #9fb2e3;
+  --loader-track: #1f2a44;
+  --loader-head: #82aaff;
+  --grip-color: #8a9bd4;
+  --dict-border: #27385a;
+  --button-bg: rgba(130, 170, 255, 0.12);
+  --button-border: rgba(130, 170, 255, 0.3);
+  --button-hover: rgba(130, 170, 255, 0.22);
+  --collapsible-bg: rgba(130, 170, 255, 0.18);
+  --collapsible-hover: rgba(130, 170, 255, 0.3);
+  --collapse-icon: #bac9ff;
+  --copy-default: #82aaff;
+  --copy-success: #4ad28d;
+  --copy-error: #ff6b6b;
+}
+
 body, html {
   margin: 0;
   padding: 0;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: #1a1a1a;
-  background-color: #ffffff;
+  color: var(--text-color);
+  background-color: var(--background-color);
 }
 
 #container {
@@ -19,10 +75,10 @@ body, html {
   max-height: 800px;
   overflow-y: auto;
   overflow-x: hidden;
-  border: 1px solid #e0e6f0;
+  border: 1px solid var(--panel-border);
   border-radius: 10px;
-  background: linear-gradient(135deg, #ffffff 0%, #f6f9ff 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, var(--panel-bg-start) 0%, var(--panel-bg-end) 100%);
+  box-shadow: inset 0 1px 0 var(--panel-shadow);
   position: relative;
 }
 
@@ -34,15 +90,15 @@ body, html {
 }
 
 #content b {
-  color: #005fcc; /* A nice blue for the header */
+  color: var(--primary-color);
 }
 
 /* Loader Animation */
 .loader {
   width: 20px;
   height: 20px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #005fcc;
+  border: 2px solid var(--loader-track);
+  border-top: 2px solid var(--loader-head);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 4px auto;
@@ -75,9 +131,9 @@ body, html {
   width: 100%;
   height: 100%;
   background-image: 
-    linear-gradient(135deg, transparent 40%, #7a8a99 40%, #7a8a99 45%, transparent 45%),
-    linear-gradient(135deg, transparent 55%, #7a8a99 55%, #7a8a99 60%, transparent 60%),
-    linear-gradient(135deg, transparent 70%, #7a8a99 70%, #7a8a99 75%, transparent 75%);
+    linear-gradient(135deg, transparent 40%, var(--grip-color) 40%, var(--grip-color) 45%, transparent 45%),
+    linear-gradient(135deg, transparent 55%, var(--grip-color) 55%, var(--grip-color) 60%, transparent 60%),
+    linear-gradient(135deg, transparent 70%, var(--grip-color) 70%, var(--grip-color) 75%, transparent 75%);
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -93,12 +149,12 @@ body, html {
 .ai-section {
   margin-top: 10px;
   padding-top: 6px;
-  border-top: 1px solid #d1dcf5;
+  border-top: 1px solid var(--dict-border);
 }
 
 .ai-heading {
   font-weight: 600;
-  color: #0b3d91;
+  color: var(--primary-strong);
   margin-bottom: 6px;
 }
 
@@ -110,7 +166,7 @@ body, html {
 
 .ai-label {
   font-weight: 600;
-  color: #005fcc;
+  color: var(--primary-color);
 }
 
 .ai-entry {
@@ -123,7 +179,7 @@ body, html {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #5b6c94;
+  color: var(--toggle-color);
   margin-bottom: 4px;
 }
 
@@ -133,7 +189,7 @@ body, html {
 
 .ai-note {
   margin: 0;
-  color: #1f2a44;
+  color: var(--note-text);
   white-space: pre-wrap;
 }
 
@@ -158,17 +214,17 @@ body, html {
 .dict-section {
   margin-top: 10px;
   padding: 10px 0;
-  border-top: 1px solid #d1dcf5;
+  border-top: 1px solid var(--dict-border);
 }
 
 .dict-heading {
   font-weight: 600;
-  color: #0b3d91;
+  color: var(--primary-strong);
   margin-bottom: 4px;
 }
 
 .dict-body {
-  color: #1f2a44;
+  color: var(--secondary-text);
   white-space: pre-wrap;
 }
 
@@ -184,7 +240,7 @@ body, html {
   background: none;
   border: none;
   cursor: pointer;
-  color: #0b57d0;
+  color: var(--copy-default);
   opacity: 0.7;
   transition: opacity 0.2s ease, color 0.2s ease;
   text-decoration: none;
@@ -196,7 +252,7 @@ body, html {
 }
 
 .copy-button:focus {
-  outline: 2px solid #0b57d0;
+  outline: 2px solid var(--copy-default);
   outline-offset: 2px;
 }
 
@@ -210,34 +266,37 @@ body, html {
 }
 
 .copy-button.copied {
-  color: #2d7a2d;
+  color: var(--copy-success);
   opacity: 1;
 }
 
 .copy-button.error {
-  color: #b3261e;
+  color: var(--copy-error);
   opacity: 1;
 }
 
-.actions {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid #e0e6f0;
-}
-
-.actions button {
-  margin-right: 4px;
-  padding: 4px 10px;
+.settings-link {
+  margin-top: 10px;
+  padding: 6px 12px;
   font-size: 12px;
-  background-color: #f0f5ff;
-  border: 1px solid #b3d9ff;
-  border-radius: 4px;
+  background-color: var(--button-bg);
+  border: 1px solid var(--button-border);
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
+  color: var(--primary-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.actions button:hover {
-  background-color: #e0ecff;
+.settings-link:hover {
+  background-color: var(--button-hover);
+}
+
+.settings-link:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 /* Collapsible Sections */
@@ -254,7 +313,7 @@ body, html {
   justify-content: space-between;
   cursor: pointer;
   padding: 2px 8px;
-  background-color: #f5f8ff;
+  background-color: var(--collapsible-bg);
   border-radius: 4px;
   transition: background-color 0.2s ease;
   user-select: none;
@@ -267,18 +326,18 @@ body, html {
 }
 
 .collapsible-header:hover {
-  background-color: #e8f0ff;
+  background-color: var(--collapsible-hover);
 }
 
 .collapsible-header .ai-label {
   font-weight: 600;
-  color: #005fcc;
+  color: var(--primary-color);
   margin: 0;
 }
 
 .collapse-icon {
   font-size: 10px;
-  color: #5b6c94;
+  color: var(--collapse-icon);
   transition: transform 0.2s ease;
   line-height: 1;
 }

@@ -27,6 +27,54 @@ const selectedText = urlParams.get('text');
 const contentDiv = document.getElementById('content');
 const container = document.getElementById('container');
 const resizeHandle = document.getElementById('resize-handle');
+const settingsButton = document.getElementById('settings-button');
+
+const themeParam = urlParams.get('theme');
+const initialTheme = themeParam === 'dark' ? 'dark' : 'light';
+
+function applyTheme(theme) {
+  const value = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = value;
+}
+
+applyTheme(initialTheme);
+
+async function syncThemeFromStorage() {
+  if (!API?.storage?.local) {
+    return;
+  }
+  try {
+    const stored = await API.storage.local.get('extensionSettings');
+    const theme = stored?.extensionSettings?.theme === 'dark' ? 'dark' : 'light';
+    applyTheme(theme);
+  } catch (error) {
+    // Ignore storage read errors inside popup
+    console.warn('JaDict: Không đọc được theme lưu', error);
+  }
+}
+
+syncThemeFromStorage();
+
+if (API?.storage?.onChanged) {
+  API.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local' || !changes.extensionSettings) {
+      return;
+    }
+    const themeValue = changes.extensionSettings.newValue?.theme;
+    applyTheme(themeValue);
+  });
+}
+
+if (settingsButton) {
+  settingsButton.addEventListener('click', () => {
+    if (!API?.runtime?.openOptionsPage) {
+      return;
+    }
+    API.runtime.openOptionsPage().catch((error) => {
+      console.error('JaDict: Không mở được trang cài đặt', error);
+    });
+  });
+}
 
 const MIN_WIDTH = 320;
 const MAX_WIDTH = 1280;

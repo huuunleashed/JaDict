@@ -2,6 +2,17 @@
 
 Tất cả các thay đổi đáng chú ý của dự án này được ghi lại trong tệp này.
 
+## [v0.2] - 2025-10-29
+
+### Added
+- Action popup dưới biểu tượng extension với bật/tắt toàn cục, bật/tắt theo trang, chỉnh theme, nhập API key và chọn mô hình
+- Popup tra cứu có nút mở nhanh trang cài đặt tổng và hỗ trợ theme sáng/tối
+- Trang cài đặt tổng làm mới với 3 tab (Cài đặt, Hướng dẫn, Ủng hộ) và quản lý blacklist tên miền
+
+### Changed
+- Đồng bộ lưu trữ cấu hình (theme, trạng thái hoạt động, blacklist) cho background, popup và options
+- Popup tra cứu áp dụng hệ màu tương thích theme
+
 ## [v0.1] - 2025-10-27
 
 ### 🎉 Tính Năng Mới

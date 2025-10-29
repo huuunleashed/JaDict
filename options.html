@@ -1,32 +1,109 @@
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<html lang="vi">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JaDict - Cài đặt</title>
   <link rel="stylesheet" href="options.css">
 </head>
 <body>
-  <div class="container">
-  <h1>Cài đặt JaDict</h1>
-    
-    <div class="setting">
-      <label for="api-key">Mã API Gemini</label>
-      <p>Nhập khóa Google AI Studio của bạn. Bắt buộc để dịch câu bằng AI.</p>
-      <input type="password" id="api-key" placeholder="Dán mã AIzaSy... vào đây">
-    </div>
+  <div class="options-container">
+    <header class="page-header">
+      <h1>JaDict</h1>
+      <p>Quản lý cài đặt, hướng dẫn và thông tin ủng hộ.</p>
+    </header>
 
-    <div class="setting">
-      <label for="model-select">Chọn mô hình</label>
-      <p>Chọn mô hình Google miễn phí. Giới hạn: yêu cầu/phút (RPM), token/phút (TPM), yêu cầu/ngày (RPD).</p>
-      <select id="model-select">
-        <option value="gemini-2.5-flash">gemini-2.5-flash - 10 RPM / 250K TPM / 250 RPD</option>
-        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite - 15 RPM / 250K TPM / 1K RPD</option>
-        <option value="gemini-2.5-pro">gemini-2.5-pro - 2 RPM / 125K TPM / 50 RPD</option>
-      </select>
-    </div>
+    <nav class="tab-bar">
+      <button type="button" class="tab-button active" data-tab-target="general">Cài đặt</button>
+      <button type="button" class="tab-button" data-tab-target="guide">Hướng dẫn</button>
+      <button type="button" class="tab-button" data-tab-target="donate">Ủng hộ</button>
+    </nav>
 
-    <button id="save-button">Lưu cài đặt</button>
-    <div id="status-message"></div>
+    <section id="tab-general" class="tab-panel active" data-tab="general">
+      <div class="card">
+        <h2>Trạng thái</h2>
+        <label class="toggle">
+          <input type="checkbox" id="global-toggle">
+          <span>Bật JaDict toàn bộ</span>
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>Giao diện</h2>
+        <label for="theme-select">Chế độ hiển thị</label>
+        <select id="theme-select">
+          <option value="light">Sáng</option>
+          <option value="dark">Tối</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <h2>Cấu hình Gemini</h2>
+        <label for="api-key">API key</label>
+        <input type="password" id="api-key" placeholder="AIza...">
+        <label for="model-select">Mô hình</label>
+        <select id="model-select">
+          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+          <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+        </select>
+        <div class="form-actions">
+          <button id="save-credentials" type="button" class="primary">Lưu</button>
+          <span id="status-message" class="status-message"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Tùy chỉnh kết quả</h2>
+        <p>Giới hạn số từ gợi ý cho từng mục để nội dung gọn gàng hơn.</p>
+        <label for="synonym-limit">Số từ đồng nghĩa hiển thị</label>
+        <input type="number" id="synonym-limit" min="0" max="20" step="1">
+        <label for="antonym-limit">Số từ trái nghĩa hiển thị</label>
+        <input type="number" id="antonym-limit" min="0" max="20" step="1">
+      </div>
+
+      <div class="card">
+        <h2>Danh sách chặn</h2>
+        <p>JaDict sẽ không hoạt động trên các tên miền nằm trong danh sách này.</p>
+        <form id="blacklist-form" class="inline-form">
+          <input type="text" id="blacklist-input" placeholder="Ví dụ: example.com" autocomplete="off">
+          <button type="submit" class="secondary">Thêm</button>
+        </form>
+        <ul id="blacklist-list" class="blacklist"></ul>
+      </div>
+    </section>
+
+    <section id="tab-guide" class="tab-panel" data-tab="guide">
+      <div class="card">
+        <h2>Sử dụng nhanh</h2>
+        <ol>
+          <li>Cấp quyền cho JaDict và nhập API key Gemini ở tab Cài đặt.</li>
+          <li>Bôi đen từ hoặc câu trên bất kỳ trang web nào.</li>
+          <li>Popup xuất hiện tại vị trí con trỏ với kết quả từ điển và Gemini.</li>
+          <li>Dùng nút sao chép để lưu bản dịch hoặc mở cài đặt tổng từ popup.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h2>Mẹo</h2>
+        <ul class="tips">
+          <li>Dùng action popup để bật hoặc tắt JaDict theo từng trang.</li>
+          <li>Giữ phím Alt trong khi kéo góc để chỉnh kích thước popup mượt mà.</li>
+          <li>Thêm tên miền vào danh sách chặn nếu bạn không muốn popup xuất hiện.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="tab-donate" class="tab-panel" data-tab="donate">
+      <div class="card center">
+        <h2>Ủng hộ JaDict</h2>
+        <p>Huỳnh Quốc Hữu</p>
+        <p>MoMo: 0935725635</p>
+        <p>Cảm ơn bạn đã đồng hành cùng JaDict.</p>
+      </div>
+    </section>
   </div>
+
+  <script src="settings.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

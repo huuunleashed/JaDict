@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="action.css">
+</head>
+<body>
+  <div class="action-container">
+    <header class="action-header">
+      <div class="logo">JaDict</div>
+      <button id="open-options" type="button" class="link-button">Mở cài đặt tổng</button>
+    </header>
+
+    <section class="section" id="status-section">
+      <h2>Trạng thái</h2>
+      <div class="field">
+        <label class="toggle">
+          <input type="checkbox" id="global-toggle">
+          <span>Bật JaDict toàn bộ</span>
+        </label>
+      </div>
+      <div class="field" id="site-toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="site-toggle">
+          <span>Bật JaDict trên trang này</span>
+        </label>
+        <div class="site-domain" id="site-domain"></div>
+      </div>
+    </section>
+
+    <section class="section" id="theme-section">
+      <h2>Giao diện</h2>
+      <div class="field">
+        <label for="theme-select">Chế độ hiển thị</label>
+        <select id="theme-select">
+          <option value="light">Sáng</option>
+          <option value="dark">Tối</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="section" id="api-section">
+      <h2>Cấu hình Gemini</h2>
+      <div class="field">
+        <label for="api-key">API key</label>
+        <input type="password" id="api-key" placeholder="AIza...">
+      </div>
+      <div class="field">
+        <label for="model-select">Mô hình</label>
+        <select id="model-select">
+          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+          <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+        </select>
+      </div>
+      <div class="footer-actions">
+        <button id="save-credentials" type="button" class="primary">Lưu</button>
+        <div id="status-message" class="status-message"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="settings.js"></script>
+  <script src="action.js"></script>
+</body>
+</html>

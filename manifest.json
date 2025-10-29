@@ -1,18 +1,20 @@
 {
   "manifest_version": 3,
   "name": "JaDict (Jacob Dictionary)",
-  "version": "0.1",
+  "version": "0.2",
   "description": "Tra cứu JaDict: tra từ và dịch câu ngoại tuyến/AI.",
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "clipboardWrite"
+    "clipboardWrite",
+    "tabs"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
   "action": {
-    "default_title": "JaDict"
+    "default_title": "JaDict",
+    "default_popup": "action.html"
   },
   "background": {
     "service_worker": "background.js"
@@ -28,7 +30,14 @@
     {
       "resources": [
         "popup.html",
-        "options.html"
+        "popup.css",
+        "popup.js",
+        "options.html",
+        "options.css",
+        "options.js",
+        "settings.js",
+        "loader.html",
+        "loader.css"
       ],
       "matches": ["<all_urls>"]
     }

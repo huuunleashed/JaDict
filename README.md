@@ -2,7 +2,7 @@
 
 **JaDict** là extension trình duyệt thông minh giúp bạn tra từ và dịch câu nhanh chóng chỉ bằng cách bôi đen text trên bất kỳ trang web nào. Với khả năng tra từ **offline hoàn toàn** và tích hợp **Google Gemini AI** cho dịch thuật chất lượng cao, JaDict là công cụ đắc lực cho việc học ngoại ngữ và đọc tài liệu tiếng Anh.
 
-![Version](https://img.shields.io/badge/version-0.1-blue)
+![Version](https://img.shields.io/badge/version-0.2-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Compatible](https://img.shields.io/badge/compatible-Chromium%20|%20Chrome%20|%20Edge%20|%20Firefox-blueviolet)
 
@@ -10,14 +10,31 @@
 
 ## ✨ Tính Năng Nổi Bật
 
+### 🎯 Tra Cứu & Dịch Thuật
 - ⚡ **Tra Từ Tức Thì** - Bôi đen text và xem kết quả ngay lập tức tại vị trí con trỏ
 - 📖 **Từ Điển Offline** - Tra từ nhanh không cần kết nối internet, tiết kiệm băng thông
 - 🤖 **AI-Powered Translation** - Dịch câu phức tạp với độ chính xác cao bằng Google Gemini API
 - 🌍 **Song Ngữ Anh - Việt** - Tự động phát hiện ngôn ngữ và dịch hai chiều
-- 📋 **Copy Nhanh** - Nút copy SVG tiện lợi để lưu kết quả dịch
+- � **Phân Tích Từ Vựng Chi Tiết** - Từ loại, định nghĩa, ví dụ, từ đồng nghĩa & trái nghĩa
+- 🔍 **Nhận Diện Thông Minh** - Tự động phân biệt từ đơn và câu để chọn phương pháp tra cứu tối ưu
+
+### 🎨 Giao Diện & Trải Nghiệm
+- 🌓 **Theme Sáng/Tối** - Giao diện hiện đại với 2 chế độ màu, đồng bộ toàn bộ extension
 - 📐 **Popup Linh Hoạt** - Tự do điều chỉnh kích thước popup từ 320×220px đến 1280×800px
-- 🎨 **Giao Diện Hiện Đại** - Thiết kế đẹp mắt với gradient background và typography tối ưu
-- 🔒 **Bảo Mật Tuyệt Đối** - API key lưu trữ cục bộ, dữ liệu của bạn không được gửi đi đâu cả
+- 📋 **Copy Nhanh** - Nút copy SVG tiện lợi để lưu kết quả dịch vào clipboard
+- 🎯 **Collapsible Sections** - Thu gọn/mở rộng các phần thông tin để tối ưu không gian
+- ⚙️ **Settings Button** - Mở trang cài đặt tổng ngay từ popup tra cứu
+
+### 🛠️ Quản Lý & Tùy Chỉnh
+- 🎛️ **Action Popup Nhanh** - Click icon extension để bật/tắt toàn bộ hoặc theo từng trang
+- 🚫 **Blacklist Management** - Quản lý danh sách trang web không muốn JaDict hoạt động
+- 🎚️ **Giới Hạn Từ Gợi Ý** - Tùy chỉnh số lượng từ đồng nghĩa và trái nghĩa hiển thị (0-20)
+- 📑 **Trang Options 3 Tabs** - Cài đặt, Hướng dẫn và Ủng hộ trong một giao diện thống nhất
+- 🔄 **Đồng Bộ Cài Đặt** - Settings được lưu và đồng bộ giữa popup, action và options
+
+### 🔒 Bảo Mật & Hiệu Năng
+- � **Bảo Mật Tuyệt Đối** - API key lưu trữ cục bộ, dữ liệu của bạn không được gửi đi đâu cả
+- ⚡ **Tối Ưu Hiệu Năng** - Cache từ điển, lazy loading, chỉ ~50MB RAM khi chạy
 - 🌐 **Đa Nền Tảng** - Hoạt động mượt mà trên Chrome, Edge, Brave, Firefox và Zen Browser
 
 ---
@@ -276,7 +293,86 @@ JaDict **tự động phát hiện** ngôn ngữ. Khi bạn bôi đen tiếng Vi
 
 ### 🎨 Tính Năng Nâng Cao
 
-#### **1. Copy Kết Quả Dịch**
+#### **1. Action Popup - Quản Lý Nhanh**
+
+Click vào **icon JaDict** trên toolbar để mở Action Popup với các tính năng quản lý nhanh:
+
+**Trạng Thái:**
+- 🌐 **Bật JaDict toàn bộ** - Toggle on/off cho tất cả các trang web
+- 📄 **Bật JaDict trên trang này** - Bật/tắt chỉ cho trang web hiện tại
+  - Hiển thị tên miền đang truy cập (ví dụ: `example.com`)
+  - Tự động cập nhật khi chuyển tab
+
+**Giao Diện:**
+- 🌓 **Chế độ hiển thị** - Chuyển đổi giữa theme Sáng và Tối
+  - Áp dụng ngay lập tức cho popup tra cứu
+  - Đồng bộ với trang Options
+
+**Cấu Hình Gemini:**
+- 🔑 **API key** - Nhập hoặc cập nhật Gemini API key
+- 🤖 **Mô hình** - Chọn giữa 3 models: flash, flash-lite, pro
+- 💾 **Lưu** - Nút lưu với status message (thành công/lỗi)
+
+**Nút Mở Cài Đặt:**
+- ⚙️ **Mở cài đặt tổng** - Truy cập nhanh vào Options Page đầy đủ
+
+> 💡 **Mẹo:** Action Popup là cách nhanh nhất để bật/tắt JaDict trên các trang web cụ thể mà không cần mở Options Page.
+
+#### **2. Options Page - Cài Đặt Chi Tiết**
+
+Trang Options được thiết kế với **3 tabs** để tổ chức thông tin rõ ràng:
+
+**📋 Tab Cài Đặt:**
+
+1. **Trạng Thái:**
+   - Toggle bật/tắt JaDict toàn bộ
+   - Ảnh hưởng tất cả các trang web
+
+2. **Giao Diện:**
+   - Chọn theme: Sáng hoặc Tối
+   - Áp dụng ngay lập tức, không cần reload
+
+3. **Cấu Hình Gemini:**
+   - Nhập API key (bắt buộc cho tính năng AI)
+   - Chọn model (flash, flash-lite, pro)
+   - Nút lưu với status message
+
+4. **Tùy Chỉnh Kết Quả:**
+   - **Số từ đồng nghĩa hiển thị** (0-20, mặc định: 5)
+     - Set 0 để ẩn hoàn toàn
+     - Set 20 để hiển thị tất cả
+   - **Số từ trái nghĩa hiển thị** (0-20, mặc định: 5)
+   - Giúp giảm độ dài kết quả, tối ưu không gian popup
+
+5. **Danh Sách Chặn (Blacklist):**
+   - Nhập tên miền (ví dụ: `example.com`, `youtube.com`)
+   - JaDict sẽ không hoạt động trên các trang này
+   - Danh sách hiển thị với nút "Bỏ" để xóa từng domain
+   - Hỗ trợ nhiều domains, phân cách bởi Enter
+
+**📖 Tab Hướng Dẫn:**
+
+1. **Sử Dụng Nhanh:**
+   - 4 bước cơ bản để bắt đầu với JaDict
+   - Từ cấp quyền đến tra cứu và copy kết quả
+
+2. **Mẹo:**
+   - Sử dụng action popup hiệu quả
+   - Resize popup mượt mà
+   - Quản lý blacklist
+
+**💝 Tab Ủng Hộ:**
+   - Thông tin tác giả: Huỳnh Quốc Hữu
+   - Tài khoản MoMo: 0935725635
+   - Lời cảm ơn
+
+> 💡 **Truy cập Options Page:**
+> - **Cách 1:** Right-click icon JaDict → "Options"
+> - **Cách 2:** Action Popup → "Mở cài đặt tổng"
+> - **Cách 3:** Từ popup tra cứu → Click "Cài đặt tổng"
+> - **Cách 4:** `chrome://extensions/` → JaDict → "Extension options"
+
+#### **3. Copy Kết Quả Dịch**
 
 Mỗi bản dịch AI đều có một **nút copy SVG** (icon 📋) bên cạnh:
 
@@ -287,7 +383,7 @@ Mỗi bản dịch AI đều có một **nút copy SVG** (icon 📋) bên cạnh
 
 > 💡 **Mẹo:** Chức năng này rất hữu ích khi bạn cần paste kết quả dịch vào email, document, hoặc chat.
 
-#### **2. Resize Popup (Thay Đổi Kích Thước)**
+#### **4. Resize Popup (Thay Đổi Kích Thước)**
 
 Popup có thể được **kéo giãn tự do** để phù hợp với nội dung:
 
@@ -306,7 +402,7 @@ Popup có thể được **kéo giãn tự do** để phù hợp với nội dun
 > - Màn hình nhỏ → thu nhỏ popup để không che khuất nội dung trang
 > - Nhiều thông tin từ AI → kéo cao để xem hết mà không cần scroll
 
-#### **3. Tự Động Đóng Popup**
+#### **5. Tự Động Đóng Popup**
 
 Popup sẽ tự động biến mất trong các trường hợp sau:
 - Bạn **click chuột** vào bất kỳ vị trí nào ngoài popup
@@ -314,11 +410,149 @@ Popup sẽ tự động biến mất trong các trường hợp sau:
 - Bạn **scroll trang** (chỉ trên một số trình duyệt)
 - Bạn **nhấn phím Esc** (nếu popup đang focus)
 
+#### **6. Theme Sáng/Tối**
+
+JaDict hỗ trợ **2 chế độ màu** được đồng bộ hoàn toàn:
+
+**🌞 Theme Sáng (Light Mode):**
+- Background trắng sáng (`#f2f5fa`)
+- Text màu đen (`#111827`)
+- Accent màu xanh dương (`#0a4ed1`)
+- Phù hợp cho môi trường sáng, ban ngày
+- Dễ đọc trên màn hình LCD
+
+**🌙 Theme Tối (Dark Mode):**
+- Background tối (`#0f172a`)
+- Text màu trắng/xám nhạt (`#e5e7ff`)
+- Accent màu xanh nhạt (`#4d8dff`)
+- Giảm mỏi mắt khi làm việc ban đêm
+- Tiết kiệm pin cho màn hình OLED
+
+**Cách Chuyển Theme:**
+1. **Từ Action Popup:**
+   - Click icon JaDict trên toolbar
+   - Chọn "Chế độ hiển thị" → Sáng/Tối
+   - Áp dụng ngay lập tức
+
+2. **Từ Options Page:**
+   - Mở Options → Tab "Cài đặt"
+   - Chọn dropdown "Chế độ hiển thị"
+   - Theme thay đổi real-time
+
+**Đồng Bộ Toàn Diện:**
+- ✅ Popup tra cứu (iframe trên trang web)
+- ✅ Action popup (click icon extension)
+- ✅ Options page (trang cài đặt)
+- ✅ Tự động sync khi thay đổi ở bất kỳ đâu
+
+> 💡 **Mẹo:** Theme được lưu vào browser storage, không bị mất khi reload extension hoặc khởi động lại browser.
+
 ---
 
-## ⚙️ Cấu Hình & Tùy Chỉnh
+## ⚙️ Cấu Hình & Tùy Chỉnh Nâng Cao
 
-### 🎛️ Lựa Chọn Model AI
+### 🎚️ Giới Hạn Từ Đồng Nghĩa & Trái Nghĩa
+
+Để tối ưu không gian popup và tránh quá tải thông tin, bạn có thể giới hạn số lượng từ gợi ý:
+
+**Tại Options Page → Tab Cài Đặt → Tùy Chỉnh Kết Quả:**
+
+1. **Số từ đồng nghĩa hiển thị:**
+   - Mặc định: **5 từ**
+   - Khoảng: 0-20
+   - Set `0` để ẩn hoàn toàn section từ đồng nghĩa
+   - Set `20` để hiển thị tối đa
+
+2. **Số từ trái nghĩa hiển thị:**
+   - Mặc định: **5 từ**
+   - Khoảng: 0-20
+   - Tương tự như đồng nghĩa
+
+**Ví Dụ Thực Tế:**
+
+```
+Với "happy" - Gemini trả về 15 từ đồng nghĩa:
+joyful, cheerful, delighted, pleased, content, glad, 
+merry, jubilant, ecstatic, elated, blissful, upbeat, 
+lighthearted, satisfied, optimistic
+
+Nếu set limit = 5: Chỉ hiển thị 5 từ đầu
+→ joyful, cheerful, delighted, pleased, content
+
+Nếu set limit = 0: Ẩn hoàn toàn
+→ (không hiển thị mục "Từ đồng nghĩa")
+```
+
+> 💡 **Khuyến nghị:**
+> - Dùng **5** cho cân bằng giữa thông tin và gọn gàng
+> - Dùng **10-15** nếu bạn muốn học nhiều từ vựng
+> - Dùng **0** nếu chỉ cần nghĩa và ví dụ, không cần synonyms/antonyms
+
+### 🚫 Quản Lý Blacklist (Danh Sách Chặn)
+
+Một số trang web bạn không muốn JaDict hoạt động (ví dụ: trình soạn thảo online, game, v.v.):
+
+**Cách Thêm Domain Vào Blacklist:**
+
+1. Mở **Options Page** → Tab "Cài đặt"
+2. Scroll xuống phần **"Danh sách chặn"**
+3. Nhập tên miền vào ô input:
+   - ✅ Đúng: `example.com`
+   - ✅ Đúng: `www.example.com`
+   - ✅ Đúng: `docs.google.com`
+   - ❌ Sai: `https://example.com` (bỏ protocol)
+   - ❌ Sai: `example.com/page` (bỏ path)
+4. Click **"Thêm"**
+5. Domain xuất hiện trong danh sách với nút "Bỏ"
+
+**Cách Xóa Domain:**
+- Click nút **"Bỏ"** bên cạnh tên domain
+- Domain bị xóa ngay lập tức
+
+**Hoạt Động:**
+- Khi truy cập trang bị chặn → JaDict **hoàn toàn ngừng hoạt động**
+- Bôi đen text → **không có popup** xuất hiện
+- Chuyển sang trang khác → JaDict hoạt động bình thường
+
+**Cách Nhanh - Từ Action Popup:**
+1. Truy cập trang web cần chặn
+2. Click icon JaDict → Action Popup
+3. **Tắt toggle "Bật JaDict trên trang này"**
+4. Domain tự động được thêm vào blacklist
+
+> 💡 **Use Cases:**
+> - Trình soạn thảo: Google Docs, Notion, VS Code Online
+> - Game online: Để tránh popup làm gián đoạn
+> - Trang nội bộ công ty: Tránh gửi text nhạy cảm đến Gemini API
+
+---
+
+## 🌐 Tương Thích Trình Duyệt
+
+JaDict được phát triển và kiểm thử kỹ lưỡng trên nhiều trình duyệt khác nhau:
+
+| Trình Duyệt | Trạng Thái | Phiên Bản Tối Thiểu | Ghi Chú |
+|-------------|-----------|---------------------|---------|
+| **Google Chrome** | ✅ Hoạt động hoàn hảo | 90+ | Stable, được test nhiều nhất |
+| **Microsoft Edge** | ✅ Hoạt động hoàn hảo | 90+ | Khuyên dùng, tích hợp tốt với Windows |
+| **Brave** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based, privacy-focused |
+| **Opera** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based |
+| **Vivaldi** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based, advanced features |
+| **Chromium** | ✅ Hoạt động hoàn hảo | Any | Open-source base |
+| **Firefox** | ✅ Cần gói & ký | 109+ | Build `npm run build:firefox`, upload AMO để nhận `.xpi` đã ký |
+| **Zen Browser** | ✅ Cần gói & ký | Latest | Cài file `.xpi` đã ký hoặc bật chế độ developer |
+| **LibreWolf** | ✅ Cần gói & ký | Latest | Hỗ trợ cài `.xpi` đã ký / tắt signature bắt buộc |
+
+**Giải thích trạng thái:**
+- ✅ **Hoạt động hoàn hảo:** Cài đặt một lần, dùng vĩnh viễn
+- ✅ **Cần gói & ký:** Cần build `dist/jadict-firefox.zip` và cài `.xpi` đã ký bởi Mozilla hoặc chế độ developer
+- ⚠️ **Tạm thời:** Chỉ dành cho mục đích debug, bị gỡ khi đóng trình duyệt
+
+> 💡 **Khuyến nghị:** Dùng trình duyệt **Chromium-based** (Chrome, Edge, Brave) để có trải nghiệm tốt nhất.
+
+---
+
+## 🤖 Lựa Chọn Model AI Gemini
 
 JaDict hỗ trợ **3 model Google Gemini** khác nhau. Bạn có thể thay đổi model trong **Options page** bất kỳ lúc nào.
 
@@ -353,7 +587,9 @@ JaDict hỗ trợ **3 model Google Gemini** khác nhau. Bạn có thể thay đ�
 > - Chuyển sang `flash` nếu thấy chất lượng chưa đạt
 > - Chỉ dùng `pro` khi thực sự cần thiết để tránh hết quota nhanh
 
-### 📊 Giới Hạn API (Quota)
+---
+
+## 📊 Giới Hạn API (Quota)
 
 Google Gemini cung cấp **miễn phí** với giới hạn sau:
 
@@ -367,31 +603,6 @@ Google Gemini cung cấp **miễn phí** với giới hạn sau:
 - Tra từ **1,500 lần/ngày** với `flash-lite` = ~100 từ/giờ (đủ dùng!)
 - Dịch **50 câu/ngày** với `pro` = ~3-5 câu/giờ
 - Hết quota → chờ đến ngày hôm sau để reset
-
----
-
-## 🌐 Tương Thích Trình Duyệt
-
-JaDict được phát triển và kiểm thử kỹ lưỡng trên nhiều trình duyệt khác nhau:
-
-| Trình Duyệt | Trạng Thái | Phiên Bản Tối Thiểu | Ghi Chú |
-|-------------|-----------|---------------------|---------|
-| **Google Chrome** | ✅ Hoạt động hoàn hảo | 90+ | Stable, được test nhiều nhất |
-| **Microsoft Edge** | ✅ Hoạt động hoàn hảo | 90+ | Khuyên dùng, tích hợp tốt với Windows |
-| **Brave** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based, privacy-focused |
-| **Opera** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based |
-| **Vivaldi** | ✅ Hoạt động hoàn hảo | Latest | Chromium-based, advanced features |
-| **Chromium** | ✅ Hoạt động hoàn hảo | Any | Open-source base |
-| **Firefox** | ✅ Cần gói & ký | 109+ | Build `npm run build:firefox`, upload AMO để nhận `.xpi` đã ký |
-| **Zen Browser** | ✅ Cần gói & ký | Latest | Cài file `.xpi` đã ký hoặc bật chế độ developer |
-| **LibreWolf** | ✅ Cần gói & ký | Latest | Hỗ trợ cài `.xpi` đã ký / tắt signature bắt buộc |
-
-**Giải thích trạng thái:**
-- ✅ **Hoạt động hoàn hảo:** Cài đặt một lần, dùng vĩnh viễn
-- ✅ **Cần gói & ký:** Cần build `dist/jadict-firefox.zip` và cài `.xpi` đã ký bởi Mozilla hoặc chế độ developer
-- ⚠️ **Tạm thời:** Chỉ dành cho mục đích debug, bị gỡ khi đóng trình duyệt
-
-> 💡 **Khuyến nghị:** Dùng trình duyệt **Chromium-based** (Chrome, Edge, Brave) để có trải nghiệm tốt nhất.
 
 ---
 
@@ -699,10 +910,30 @@ Bôi đen: "break the ice"
 #### **4. Resize Popup Theo Ngữ Cảnh**
 
 - **Desktop:** Kéo rộng 800-1000px để đọc thoải mái
-- **Laptop:** Giữ kích thước mặc định 320×220px
+- **Laptop:** Giữ kích thước mặc định 420×280px
 - **PDF Reader:** Resize 400×600px, đặt góc phải màn hình
 
-#### **5. Tiết Kiệm Quota API**
+#### **5. Tối Ưu Với Theme Sáng/Tối**
+
+- **Ban ngày:** Dùng theme Sáng để dễ đọc trong môi trường sáng
+- **Ban đêm:** Chuyển sang theme Tối để giảm mỏi mắt
+- **Sync tự động:** Theme áp dụng cho cả popup, action và options
+
+#### **6. Quản Lý Blacklist Hiệu Quả**
+
+- Thêm các trang không cần tra từ vào blacklist:
+  - Trình soạn thảo: Google Docs, Notion, GitHub Editor
+  - Game online: Để tránh popup làm gián đoạn
+  - Trang nội bộ: Tránh leak thông tin nhạy cảm
+- Dùng Action Popup để nhanh chóng bật/tắt theo trang
+
+#### **7. Tùy Chỉnh Số Lượng Từ Gợi Ý**
+
+- Mặc định: 5 từ đồng nghĩa + 5 từ trái nghĩa
+- Học từ vựng: Tăng lên 10-15 để xem nhiều từ hơn
+- Gọn gàng: Giảm xuống 2-3 hoặc 0 nếu chỉ cần nghĩa chính
+
+#### **8. Tiết Kiệm Quota API
 
 **Chiến lược:**
 1. Ưu tiên tra từ đơn → dùng offline (không tốn quota)
@@ -767,6 +998,106 @@ JaDict chỉ yêu cầu **các quyền tối thiểu** để hoạt động:
 > - ❌ Truy cập webcam/microphone
 
 ### � Xác Minh Bảo Mật
+
+**Cách kiểm tra JaDict có thu thập dữ liệu không:**
+
+1. **Kiểm tra Network Request:**
+   ```
+   1. Mở Developer Tools (F12)
+   2. Tab Network
+   3. Bôi đen text để tra từ
+   4. Quan sát: Chỉ có request đến generativelanguage.googleapis.com
+   5. Không có request nào đến server lạ
+   ```
+
+2. **Kiểm tra Code:**
+   ```
+   1. Vào chrome://extensions/
+   2. JaDict → Details → "Inspect views: background page"
+   3. Xem toàn bộ source code trong Sources tab
+   4. Tìm kiếm "fetch", "XMLHttpRequest", "analytics" → không có tracking
+   ```
+
+3. **Kiểm tra Storage:**
+   ```
+   1. Developer Tools → Application → Storage
+   2. Local Storage → extension://[id]
+   3. Chỉ thấy: geminiApiKey, geminiModel, extensionSettings
+   4. Không có dữ liệu lịch sử tra từ
+   ```
+
+---
+
+## ❓ FAQ - Câu Hỏi Thường Gặp
+
+### **Q1: Làm sao để bật/tắt JaDict trên một trang web cụ thể?**
+
+**A:** Có 2 cách:
+
+**Cách 1 - Từ Action Popup (Nhanh):**
+1. Click icon JaDict trên toolbar
+2. Tắt toggle "Bật JaDict trên trang này"
+3. Domain tự động được thêm vào blacklist
+
+**Cách 2 - Từ Options Page:**
+1. Mở Options → Tab Cài đặt
+2. Scroll xuống "Danh sách chặn"
+3. Nhập domain (ví dụ: `youtube.com`)
+4. Click "Thêm"
+
+### **Q2: Theme sáng/tối áp dụng cho những phần nào?**
+
+**A:** Theme được đồng bộ hoàn toàn trên:
+- ✅ Popup tra cứu (iframe trên trang web)
+- ✅ Action popup (click icon extension)
+- ✅ Options page (trang cài đặt)
+
+Khi thay đổi theme ở bất kỳ đâu, tất cả đều cập nhật ngay lập tức.
+
+### **Q3: Tại sao có quá nhiều từ đồng nghĩa/trái nghĩa?**
+
+**A:** Bạn có thể giới hạn số lượng từ gợi ý:
+1. Mở Options → Tab Cài đặt → "Tùy chỉnh kết quả"
+2. Điều chỉnh "Số từ đồng nghĩa hiển thị" (0-20, mặc định: 5)
+3. Điều chỉnh "Số từ trái nghĩa hiển thị" (0-20, mặc định: 5)
+4. Set 0 để ẩn hoàn toàn, set 20 để hiển thị tất cả
+
+### **Q4: Popup tra cứu có nút mở Settings không?**
+
+**A:** Có! Mỗi popup tra cứu đều có nút **"Cài đặt tổng"** ở phía dưới. Click vào để mở Options Page đầy đủ.
+
+### **Q5: Làm sao để xem tất cả các cài đặt của JaDict?**
+
+**A:** Có 4 cách mở Options Page:
+1. Right-click icon JaDict → "Options"
+2. Click icon JaDict → Action Popup → "Mở cài đặt tổng"
+3. Từ popup tra cứu → Click "Cài đặt tổng"
+4. `chrome://extensions/` → JaDict → "Extension options"
+
+### **Q6: Action Popup khác gì với Options Page?**
+
+**A:** 
+- **Action Popup:** Quản lý nhanh (toggle on/off, theme, API key). Click icon extension để mở.
+- **Options Page:** Cài đặt chi tiết với 3 tabs (Cài đặt, Hướng dẫn, Ủng hộ), quản lý blacklist, giới hạn từ gợi ý.
+
+### **Q7: Tôi có thể sử dụng JaDict trên Google Docs không?**
+
+**A:** Có thể, nhưng nếu muốn tắt để tránh gián đoạn khi soạn thảo:
+1. Vào Google Docs
+2. Click icon JaDict → Tắt "Bật JaDict trên trang này"
+3. Domain `docs.google.com` được thêm vào blacklist
+
+### **Q8: Extension có lưu lịch sử tra từ không?**
+
+**A:** **KHÔNG**. JaDict không lưu bất kỳ từ/câu nào bạn đã tra. Đây là cam kết về Privacy-First. Chúng tôi chỉ lưu:
+- API key Gemini (local storage)
+- Theme preference (sáng/tối)
+- Danh sách blacklist
+- Giới hạn từ gợi ý
+
+---
+
+## 🏗️ Kiến Trúc Kỹ Thuật
 
 Bạn có thể tự kiểm tra code của JaDict:
 
@@ -848,7 +1179,7 @@ Chúng tôi rất hoan nghênh mọi đóng góp! Dù bạn là developer hay ng
    **Môi trường:**
    - Browser: Chrome 120.0.6099.224
    - OS: Windows 11
-   - Extension version: 0.1
+   - Extension version: 0.2
    
    **Screenshot:**
    (Đính kèm ảnh chụp màn hình)

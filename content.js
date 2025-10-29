@@ -13,10 +13,84 @@ const API = (() => {
 
 // This script runs on every page
 const POPUP_ID = 'quick-dict-popup-iframe';
+const CURRENT_HOSTNAME = typeof window !== 'undefined' && window.location?.hostname
+  ? window.location.hostname.toLowerCase()
+  : '';
+
+const DEFAULT_EXTENSION_SETTINGS = {
+  extensionEnabled: true,
+  theme: 'light',
+  blockedSites: []
+};
+
+let extensionSettings = { ...DEFAULT_EXTENSION_SETTINGS };
+let pageEnabled = true;
+
+function normalizeExtensionSettings(raw) {
+  const normalized = { ...DEFAULT_EXTENSION_SETTINGS };
+
+  if (raw && typeof raw === 'object') {
+    if (typeof raw.extensionEnabled === 'boolean') {
+      normalized.extensionEnabled = raw.extensionEnabled;
+    }
+
+    if (raw.theme === 'dark') {
+      normalized.theme = 'dark';
+    }
+
+    if (Array.isArray(raw.blockedSites)) {
+      normalized.blockedSites = raw.blockedSites
+        .filter((site) => typeof site === 'string' && site.trim().length > 0)
+        .map((site) => site.trim().toLowerCase());
+    }
+  }
+
+  return normalized;
+}
+
+function updatePageEnabledState(settings) {
+  const allowed = settings.extensionEnabled && (!CURRENT_HOSTNAME || !settings.blockedSites.includes(CURRENT_HOSTNAME));
+  pageEnabled = allowed;
+  if (!pageEnabled) {
+    removePopup();
+  }
+}
+
+async function loadInitialSettings() {
+  if (!API?.storage?.local) {
+    pageEnabled = true;
+    return;
+  }
+
+  try {
+    const stored = await API.storage.local.get('extensionSettings');
+    extensionSettings = normalizeExtensionSettings(stored?.extensionSettings);
+    updatePageEnabledState(extensionSettings);
+  } catch (error) {
+    console.error('JaDict: Không đọc được extensionSettings', error);
+  }
+}
+
+if (API?.storage?.onChanged) {
+  API.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local' || !changes.extensionSettings) {
+      return;
+    }
+    extensionSettings = normalizeExtensionSettings(changes.extensionSettings.newValue);
+    updatePageEnabledState(extensionSettings);
+  });
+}
+
+loadInitialSettings();
 
 // --- 1. Listen for text selection ---
 
 document.addEventListener('mouseup', (e) => {
+  if (!pageEnabled) {
+    removePopup();
+    return;
+  }
+
   // We don't want to trigger when clicking *inside* our own popup
   if (e.target.id === POPUP_ID) {
     return;
@@ -39,6 +113,10 @@ document.addEventListener('mouseup', (e) => {
 // --- 2. Remove popup when clicking elsewhere ---
 
 document.addEventListener('mousedown', (e) => {
+  if (!pageEnabled) {
+    return;
+  }
+
   // Don't remove popup if the click is on the selection itself
   // or inside the popup.
   const popup = document.getElementById(POPUP_ID);
@@ -66,6 +144,10 @@ document.addEventListener('mousedown', (e) => {
 // --- 3. Create and Position the Popup ---
 
 function createPopup(text, rect) {
+  if (!pageEnabled) {
+    return;
+  }
+
   // Safety check: Make sure extension runtime is available
   if (!API || !API.runtime || !API.runtime.getURL) {
     console.error('JaDict: Extension runtime not available');
@@ -84,6 +166,7 @@ function createPopup(text, rect) {
   try {
     const popupURL = new URL(API.runtime.getURL('popup.html'));
     popupURL.searchParams.append('text', text);
+    popupURL.searchParams.append('theme', extensionSettings.theme === 'dark' ? 'dark' : 'light');
     iframe.src = popupURL.toString();
   } catch (error) {
     console.error('JaDict: Failed to create popup URL', error);
