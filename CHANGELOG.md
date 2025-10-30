@@ -2,6 +2,15 @@
 
 Tất cả các thay đổi đáng chú ý của dự án này được ghi lại trong tệp này.
 
+## [v0.3.1] - 2025-10-30
+
+### Fixed
+- **Critical: Extension không kết nối được với API** - Sửa lỗi "Could not establish connection. Receiving end does not exist" trên Firefox
+- **Critical: Background script không load được** - Xóa function call `refreshExtensionSettingsCache()` không tồn tại
+- **Firefox manifest** - Thêm `settings.js` vào background scripts array
+- **Message handling** - Cải thiện error handling trong `popup.js` với Promise wrapper và `runtime.lastError` check
+- **Web accessible resources** - Thêm `dictionary.json` vào manifest để background script có thể fetch
+
 ## [v0.3.0] - 2025-10-30
 
 ### Added

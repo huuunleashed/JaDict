@@ -96,7 +96,7 @@ const ALLOWED_CLASSES = new Set([
   'ai-section', 'ai-heading', 'ai-translation', 'ai-label', 'ai-entry',
   'ai-sense', 'ai-note', 'ai-pos', 'collapsible-section', 'collapsible-header',
   'collapsible-content', 'collapsed', 'expanded', 'collapse-icon', 'ai-bullets',
-  'dict-section', 'dict-heading', 'dict-body'
+  'dict-section', 'dict-heading', 'dict-body', 'sense-divider'
 ]);
 
 function renderSanitizedHtml(target, html) {
@@ -397,9 +397,26 @@ async function requestLookup() {
   }
 
   try {
-    const response = await API.runtime.sendMessage({
-      type: "LOOKUP",
-      text: selectedText
+    // Check if API is available
+    if (!API || !API.runtime || !API.runtime.sendMessage) {
+      throw new Error('Extension API không khả dụng');
+    }
+
+    const response = await new Promise((resolve, reject) => {
+      API.runtime.sendMessage(
+        {
+          type: "LOOKUP",
+          text: selectedText
+        },
+        (response) => {
+          // Check for runtime errors
+          if (API.runtime.lastError) {
+            reject(new Error(API.runtime.lastError.message || 'Lỗi kết nối'));
+            return;
+          }
+          resolve(response);
+        }
+      );
     });
 
     if (response && response.status === "success") {
@@ -414,6 +431,7 @@ async function requestLookup() {
   } catch (error) {
     const message = error?.message || error;
     contentDiv.textContent = `Lỗi: ${message}`;
+    console.error('JaDict lookup error:', error);
   } finally {
     resetContainerHeight();
     // After content is set, tell the parent page to resize

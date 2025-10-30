@@ -47,8 +47,6 @@ if (API?.storage?.onChanged && SETTINGS) {
   });
 }
 
-refreshExtensionSettingsCache();
-
 // --- 1. Main Message Listener ---
 // (API Key is no longer stored here)
 
@@ -58,12 +56,17 @@ const GEMINI_DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 
 // Listens for messages from popup.js
 API.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  console.log('JaDict: Received message', request);
+  
   if (request.type !== "LOOKUP") {
     return undefined;
   }
 
   handleLookup(request.text, sender)
-    .then(result => sendResponse({ status: "success", data: result }))
+    .then(result => {
+      console.log('JaDict: Lookup success');
+      sendResponse({ status: "success", data: result });
+    })
     .catch(error => {
       console.error("JaDict error:", error);
       sendResponse({ status: "error", data: error.message });
@@ -307,7 +310,7 @@ async function generateWordInsights({ apiKey, modelId, text, detectedLang, limit
               type: 'array',
               items: {
                 type: 'object',
-                required: ['definition'],
+                required: ['definition', 'synonyms', 'antonyms'],
                 properties: {
                   definition: { type: 'string' },
                   explanation: { type: 'string' },
@@ -336,7 +339,25 @@ async function generateWordInsights({ apiKey, modelId, text, detectedLang, limit
     }
   };
 
-  const systemPrompt = `You are a bilingual lexicographer. Analyse the following ${fromLang} term and produce a concise, structured entry for learners. Use the provided JSON schema. Definitions ("definition") and usage notes ("usageNotes") must always be written in Vietnamese, even when the original term is in ${fromLang}. Explanations, usage examples, synonyms, and antonyms should remain in ${fromLang}. Provide the best single-word or short-phrase translation in ${toLang}. Leave fields empty if you are unsure.`;
+  const systemPrompt = `You are a bilingual lexicographer. Analyse the following ${fromLang} term and produce a concise, structured entry for learners. 
+
+SCHEMA REQUIREMENTS (MANDATORY):
+- Each "senses" object MUST contain these fields: "definition", "synonyms", "antonyms"
+- "synonyms" and "antonyms" are REQUIRED arrays (can be empty [] but must exist)
+- Definitions ("definition") and usage notes ("usageNotes") must be in Vietnamese
+- Explanations, examples, synonyms, and antonyms must be in ${fromLang}
+
+HOW TO FIND ANTONYMS:
+1. For adjectives: opposite quality (hot↔cold, good↔bad, light↔dark, strong↔weak)
+2. For verbs: opposite action (start↔stop, give↔take, rise↔fall, love↔hate)
+3. For nouns: opposite concept (day↔night, friend↔enemy, success↔failure)
+4. If truly no antonym exists, use empty array [] (rare cases only)
+
+EXAMPLES:
+- "happy" → synonyms: ["joyful", "glad"], antonyms: ["sad", "unhappy"]
+- "caller" → synonyms: ["visitor", "guest"], antonyms: ["host", "receiver"]
+
+Provide best translation in ${toLang}.`;
 
   const { text: rawJson } = await makeGeminiRequest({
     apiKey,
@@ -352,6 +373,7 @@ async function generateWordInsights({ apiKey, modelId, text, detectedLang, limit
   });
 
   const parsed = parseJsonSafe(rawJson);
+  console.log('JaDict: Gemini raw response for word:', text, JSON.stringify(parsed, null, 2));
   return formatWordInsights({
     term: text,
     modelId,
@@ -489,6 +511,7 @@ function parseJsonSafe(rawText) {
 function formatWordInsights({ term, modelId, fromLang, toLang, data, limits }) {
   const synonymLimit = Number.isInteger(limits?.synonymLimit) ? Math.max(0, limits.synonymLimit) : 5;
   const antonymLimit = Number.isInteger(limits?.antonymLimit) ? Math.max(0, limits.antonymLimit) : 5;
+  console.log('JaDict: formatWordInsights limits:', { synonymLimit, antonymLimit });
   if (!data || typeof data !== 'object') {
     throw new Error('Dữ liệu từ vựng từ Gemini không hợp lệ');
   }
@@ -514,12 +537,20 @@ function formatWordInsights({ term, modelId, fromLang, toLang, data, limits }) {
       }
 
       if (Array.isArray(entry.senses)) {
+        console.log('JaDict: Processing', entry.senses.length, 'senses');
         entry.senses.forEach((sense, index) => {
           if (!sense || typeof sense !== 'object') {
             return;
           }
 
+          // Add divider between senses (except before first sense)
+          if (index > 0) {
+            console.log('JaDict: Adding divider before sense', index + 1);
+            sections.push(`<div class="sense-divider"></div>`);
+          }
+
           const senseNumber = index + 1;
+          console.log('JaDict: Sense', senseNumber, '- synonyms:', sense.synonyms?.length, 'antonyms:', sense.antonyms?.length);
           sections.push(`<div class="ai-sense"><span class="ai-label">Nghĩa ${senseNumber}:</span> ${escapeHtml(sense.definition || '')}</div>`);
 
           if (sense.explanation) {
@@ -575,6 +606,11 @@ function formatWordInsights({ term, modelId, fromLang, toLang, data, limits }) {
             const limitedAntonyms = antonymLimit > 0 ? antonymItems.slice(0, antonymLimit) : antonymItems;
             if (limitedAntonyms.length > 0) {
               sections.push(`<div class="ai-note"><span class="ai-label">Từ trái nghĩa (${limitedAntonyms.length}):</span> ${limitedAntonyms.join(', ')}</div>`);
+            }
+          } else {
+            // Debug: log why antonyms not shown
+            if (sense.antonyms) {
+              console.log('JaDict: Antonyms data:', sense.antonyms, 'Limit:', antonymLimit);
             }
           }
         });
