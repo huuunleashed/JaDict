@@ -327,6 +327,15 @@
     restoreOptions().catch((error) => {
       console.error('JaDict: Lỗi khởi tạo trang cài đặt', error);
     });
+
+    // Handle hash navigation (e.g., options.html#guide)
+    const hash = window.location.hash.slice(1); // Remove '#'
+    if (hash) {
+      const targetButton = tabButtons.find(btn => btn.dataset.tabTarget === hash);
+      if (targetButton) {
+        targetButton.click();
+      }
+    }
   }
 
   if (document.readyState === 'loading') {

@@ -27,6 +27,7 @@
   const saveButton = document.getElementById("save-credentials");
   const statusMessage = document.getElementById("status-message");
   const openOptionsButton = document.getElementById("open-options");
+  const openGuideButton = document.getElementById("open-guide");
 
   let currentHostname = null;
   let busy = false;
@@ -204,6 +205,14 @@
   openOptionsButton.addEventListener("click", () => {
     API.runtime.openOptionsPage().catch((error) => {
       console.error("Không mở được trang cài đặt", error);
+    });
+  });
+
+  openGuideButton.addEventListener("click", () => {
+    // Open options page with guide tab
+    const optionsUrl = API.runtime.getURL("options.html#guide");
+    API.tabs.create({ url: optionsUrl }).catch((error) => {
+      console.error("Không mở được trang hướng dẫn", error);
     });
   });
 

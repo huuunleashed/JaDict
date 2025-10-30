@@ -1,0 +1,24 @@
+# JaDict v0.2 - Short Release Notes
+
+Version 0.2 brings major UI/UX improvements:
+
+✨ **New Features:**
+- Action popup for quick controls (click toolbar icon)
+- Light/Dark theme system with automatic sync
+- Enhanced options page with 3-tab design
+- Site blacklist management
+- Customizable synonym/antonym limits (0-20)
+- Quick settings button in lookup popup
+
+🔧 **Technical:**
+- Centralized settings module
+- Real-time theme synchronization
+- Improved manifest v2 compatibility
+- Better storage reliability
+
+🐛 **Fixes:**
+- Vietnamese text encoding
+- Popup positioning and resize
+- Storage stability improvements
+
+Full details: https://github.com/huuunleashed/JaDict/blob/main/CHANGELOG.md

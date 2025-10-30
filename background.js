@@ -1,3 +1,28 @@
+try {
+  importScripts('settings.js');
+} catch (error) {
+  console.error('JaDict: Không thể tải settings.js', error);
+}
+
+const SETTINGS = (typeof self !== 'undefined' && self.JA_SETTINGS) ? self.JA_SETTINGS : null;
+let extensionSettingsCache = SETTINGS ? SETTINGS.cloneDefaultSettings() : {
+  extensionEnabled: true,
+  theme: 'light',
+  blockedSites: [],
+  synonymLimit: 5,
+  antonymLimit: 5
+};
+
+let settingsReady = SETTINGS
+  ? SETTINGS.loadExtensionSettings()
+      .then((loaded) => {
+        extensionSettingsCache = loaded;
+      })
+      .catch((error) => {
+        console.error('JaDict: Không tải được cài đặt extension ban đầu', error);
+      })
+  : Promise.resolve();
+
 // --- 0. Compatibility Layer for Firefox and Chromium ---
 // Use Chrome API on Chromium, Firefox API on Firefox
 const API = (() => {
@@ -10,6 +35,19 @@ const API = (() => {
   console.error('JaDict: No extension API available');
   return null;
 })();
+
+if (API?.storage?.onChanged && SETTINGS) {
+  API.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== 'local') {
+      return;
+    }
+    if (changes.extensionSettings) {
+      extensionSettingsCache = SETTINGS.normalizeSettings(changes.extensionSettings.newValue);
+    }
+  });
+}
+
+refreshExtensionSettingsCache();
 
 // --- 1. Main Message Listener ---
 // (API Key is no longer stored here)
@@ -24,7 +62,7 @@ API.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return undefined;
   }
 
-  handleLookup(request.text)
+  handleLookup(request.text, sender)
     .then(result => sendResponse({ status: "success", data: result }))
     .catch(error => {
       console.error("JaDict error:", error);
@@ -48,7 +86,30 @@ if (ACTION_API && ACTION_API.onClicked) {
 
 // --- 2. Smart Detection and Routing Logic ---
 
-async function handleLookup(text) {
+async function handleLookup(text, sender) {
+  if (settingsReady) {
+    try {
+      await settingsReady;
+    } catch (error) {
+      // Already logged
+    }
+  }
+
+  if (!extensionSettingsCache.extensionEnabled) {
+    return 'JaDict đang tắt. Mở lại trong action popup.';
+  }
+
+  if (SETTINGS && sender?.tab?.url) {
+    try {
+      const url = new URL(sender.tab.url);
+      if (SETTINGS.isSiteBlocked(extensionSettingsCache, url.hostname)) {
+        return 'JaDict đã bị tắt trên trang này.';
+      }
+    } catch (error) {
+      // Ignore malformed URL
+    }
+  }
+
   const trimmedText = text.trim();
 
   if (!trimmedText) {
@@ -178,13 +239,20 @@ async function translateWithGemini(text, isWord = false, detectedLangOverride) {
   }
 
   const { apiKey, modelId } = settings;
+  const synonymLimit = Number.isInteger(extensionSettingsCache.synonymLimit)
+    ? extensionSettingsCache.synonymLimit
+    : 5;
+  const antonymLimit = Number.isInteger(extensionSettingsCache.antonymLimit)
+    ? extensionSettingsCache.antonymLimit
+    : 5;
+  const limits = { synonymLimit, antonymLimit };
 
   try {
     if (isWord) {
-      return await generateWordInsights({ apiKey, modelId, text, detectedLang });
+      return await generateWordInsights({ apiKey, modelId, text, detectedLang, limits });
     }
 
-    return await generateSentenceInsights({ apiKey, modelId, text, detectedLang });
+    return await generateSentenceInsights({ apiKey, modelId, text, detectedLang, limits });
 
   } catch (structuredError) {
     console.error("Gọi Gemini dạng cấu trúc thất bại:", structuredError);
@@ -219,7 +287,7 @@ async function getGeminiSettings() {
   return { apiKey, modelId };
 }
 
-async function generateWordInsights({ apiKey, modelId, text, detectedLang }) {
+async function generateWordInsights({ apiKey, modelId, text, detectedLang, limits }) {
   const fromLang = detectedLang === 'vi' ? 'Vietnamese' : 'English';
   const toLang = detectedLang === 'vi' ? 'English' : 'Vietnamese';
 
@@ -289,11 +357,12 @@ async function generateWordInsights({ apiKey, modelId, text, detectedLang }) {
     modelId,
     fromLang,
     toLang,
-    data: parsed
+    data: parsed,
+    limits
   });
 }
 
-async function generateSentenceInsights({ apiKey, modelId, text, detectedLang }) {
+async function generateSentenceInsights({ apiKey, modelId, text, detectedLang, limits }) {
   const fromLang = detectedLang === 'vi' ? 'Vietnamese' : 'English';
   const toLang = detectedLang === 'vi' ? 'English' : 'Vietnamese';
 
@@ -417,7 +486,9 @@ function parseJsonSafe(rawText) {
   return JSON.parse(cleaned);
 }
 
-function formatWordInsights({ term, modelId, fromLang, toLang, data }) {
+function formatWordInsights({ term, modelId, fromLang, toLang, data, limits }) {
+  const synonymLimit = Number.isInteger(limits?.synonymLimit) ? Math.max(0, limits.synonymLimit) : 5;
+  const antonymLimit = Number.isInteger(limits?.antonymLimit) ? Math.max(0, limits.antonymLimit) : 5;
   if (!data || typeof data !== 'object') {
     throw new Error('Dữ liệu từ vựng từ Gemini không hợp lệ');
   }
@@ -487,23 +558,23 @@ function formatWordInsights({ term, modelId, fromLang, toLang, data }) {
             </div>`);
           }
 
-          if (Array.isArray(sense.synonyms) && sense.synonyms.length > 0) {
-            const synonymsText = sense.synonyms
+          if (Array.isArray(sense.synonyms) && sense.synonyms.length > 0 && synonymLimit !== 0) {
+            const synonymItems = sense.synonyms
               .filter((item) => typeof item === 'string' && item.trim().length > 0)
-              .map((item) => escapeHtml(item))
-              .join(', ');
-            if (synonymsText) {
-              sections.push(`<div class="ai-note"><span class="ai-label">Từ đồng nghĩa:</span> ${synonymsText}</div>`);
+              .map((item) => escapeHtml(item));
+            const limitedSynonyms = synonymLimit > 0 ? synonymItems.slice(0, synonymLimit) : synonymItems;
+            if (limitedSynonyms.length > 0) {
+              sections.push(`<div class="ai-note"><span class="ai-label">Từ đồng nghĩa (${limitedSynonyms.length}):</span> ${limitedSynonyms.join(', ')}</div>`);
             }
           }
 
-          if (Array.isArray(sense.antonyms) && sense.antonyms.length > 0) {
-            const antonymsText = sense.antonyms
+          if (Array.isArray(sense.antonyms) && sense.antonyms.length > 0 && antonymLimit !== 0) {
+            const antonymItems = sense.antonyms
               .filter((item) => typeof item === 'string' && item.trim().length > 0)
-              .map((item) => escapeHtml(item))
-              .join(', ');
-            if (antonymsText) {
-              sections.push(`<div class="ai-note"><span class="ai-label">Trái nghĩa:</span> ${antonymsText}</div>`);
+              .map((item) => escapeHtml(item));
+            const limitedAntonyms = antonymLimit > 0 ? antonymItems.slice(0, antonymLimit) : antonymItems;
+            if (limitedAntonyms.length > 0) {
+              sections.push(`<div class="ai-note"><span class="ai-label">Từ trái nghĩa (${limitedAntonyms.length}):</span> ${limitedAntonyms.join(', ')}</div>`);
             }
           }
         });

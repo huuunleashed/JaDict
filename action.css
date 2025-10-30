@@ -44,12 +44,65 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .logo {
   font-weight: 600;
   font-size: 18px;
   color: var(--accent-color);
+}
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guide-button {
+  border: 2px solid var(--accent-color);
+  background: var(--accent-color);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(10, 78, 209, 0.25);
+}
+
+.guide-button:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  box-shadow: 0 4px 12px rgba(10, 78, 209, 0.35);
+  transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .guide-button {
+  box-shadow: 0 2px 8px rgba(77, 141, 255, 0.3);
+}
+
+:root[data-theme="dark"] .guide-button:hover {
+  box-shadow: 0 4px 12px rgba(77, 141, 255, 0.4);
+}
+
+.guide-icon {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guide-text {
+  font-size: 13px;
+  line-height: 1;
 }
 
 .link-button {
@@ -59,10 +112,12 @@ body {
   cursor: pointer;
   font-size: 13px;
   padding: 4px 0;
+  white-space: nowrap;
 }
 
 .link-button:hover {
   color: var(--accent-hover);
+  text-decoration: underline;
 }
 
 .section {

@@ -1,18 +1,16 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "JaDict (Jacob Dictionary)",
-  "version": "0.3.0",
+  "version": "0.2",
   "description": "Tra cứu JaDict: tra từ và dịch câu ngoại tuyến/AI.",
   "permissions": [
     "storage",
     "unlimitedStorage",
     "clipboardWrite",
-    "tabs"
-  ],
-  "host_permissions": [
+    "tabs",
     "<all_urls>"
   ],
-  "action": {
+  "browser_action": {
     "default_title": "JaDict",
     "default_popup": "action.html",
     "default_icon": {
@@ -29,7 +27,8 @@
     "128": "icons/icon-128.png"
   },
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"],
+    "persistent": false
   },
   "content_scripts": [
     {
@@ -39,23 +38,30 @@
     }
   ],
   "web_accessible_resources": [
-    {
-      "resources": [
-        "popup.html",
-        "popup.css",
-        "popup.js",
-        "options.html",
-        "options.css",
-        "options.js",
-        "settings.js",
-        "loader.html",
-        "loader.css"
-      ],
-      "matches": ["<all_urls>"]
-    }
+    "popup.html",
+    "popup.css",
+    "popup.js",
+    "action.html",
+    "action.css",
+    "action.js",
+    "options.html",
+    "options.css",
+    "options.js",
+    "settings.js",
+    "loader.html",
+    "loader.css"
   ],
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "jadict@huuunleashed",
+      "strict_min_version": "102.0",
+      "data_collection": {
+        "collects_data": false
+      }
+    }
   }
 }

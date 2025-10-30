@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="utf-8">
@@ -83,6 +83,125 @@
           <li>Dùng nút sao chép để lưu bản dịch hoặc mở cài đặt tổng từ popup.</li>
         </ol>
       </div>
+      
+      <div class="card">
+        <h2>🔑 Cấu hình Google Gemini API Key</h2>
+        <p>Để sử dụng tính năng dịch AI, bạn cần cung cấp một API key từ Google. Quá trình này <strong>hoàn toàn miễn phí</strong> và chỉ mất 2-3 phút.</p>
+        
+        <h3>Bước 1: Tạo API Key Miễn Phí</h3>
+        
+        <h4>1. Truy cập Google AI Studio:</h4>
+        <ul>
+          <li>Mở link: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">https://aistudio.google.com/apikey</a></li>
+          <li>Đăng nhập bằng <strong>tài khoản Google</strong> của bạn (Gmail, Workspace, v.v.)</li>
+        </ul>
+        
+        <h4>2. Tạo API Key:</h4>
+        <ul>
+          <li>Click nút <strong>Create API key</strong> (Tạo khóa API)</li>
+        </ul>
+        <img src="https://github.com/user-attachments/assets/683fca82-1698-4ea5-a4e7-984b6a12ac20" alt="Create API key button" class="guide-image">
+        
+        <ul>
+          <li>Chọn <strong>Create a new key</strong> và <strong>Create project</strong> (Tạo trong dự án mới)</li>
+        </ul>
+        <img src="https://github.com/user-attachments/assets/0a4a5d66-8b44-406d-b660-599f799dc867" alt="Create project dialog" class="guide-image">
+        
+        <ul>
+          <li>Nhập tên dự án mới và nhấn <strong>Create project</strong> (Tạo dự án mới)</li>
+        </ul>
+        <img src="https://github.com/user-attachments/assets/f3c2ac2b-a718-41f7-8d3e-78883056bd32" alt="Enter project name" class="guide-image">
+        
+        <ul>
+          <li>Sau đó, xác minh tên API key và nhấn <strong>Create key</strong> (Tạo key mới)</li>
+        </ul>
+        <img src="https://github.com/user-attachments/assets/405fef99-cc8f-44ed-b5b9-06b5fb2af034" alt="Confirm API key creation" class="guide-image">
+        
+        <ul>
+          <li>Đợi 5-10 giây để Google xử lý</li>
+        </ul>
+        
+        <h4>3. Copy API Key:</h4>
+        <ul>
+          <li>API key sẽ hiển thị dạng: <code>AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXX</code></li>
+          <li>Click vào icon <strong>Copy</strong> hoặc bôi đen và copy thủ công</li>
+        </ul>
+        <img src="https://github.com/user-attachments/assets/a6beaa30-8879-4823-a3f4-89ea8afa2a80" alt="Copy API key" class="guide-image">
+        
+        <ul>
+          <li>Lưu key vào file text hoặc ghi chú an toàn (hoặc cứ để trong clipboard và xoá sau)</li>
+        </ul>
+        
+        <div class="notice notice-warning">
+          <h4>🔒 Bảo Mật API Key:</h4>
+          <ul>
+            <li><strong>KHÔNG BAO GIỜ</strong> chia sẻ API key với người khác</li>
+            <li><strong>KHÔNG</strong> commit key vào GitHub hoặc public repository</li>
+            <li><strong>KHÔNG</strong> để key trong file config không được mã hóa</li>
+            <li>Nếu key bị lộ, hãy xóa và tạo key mới ngay lập tức</li>
+          </ul>
+        </div>
+        
+        <div class="notice notice-info">
+          <h4>💰 Về Chi Phí:</h4>
+          <ul>
+            <li>Google cung cấp <strong>hoàn toàn miễn phí</strong> cho mô hình Gemini 2.5 Flash</li>
+            <li>Giới hạn: <strong>15 requests/phút</strong> và <strong>1,500 requests/ngày</strong></li>
+            <li>Đủ cho nhu cầu tra từ cá nhân hàng ngày</li>
+            <li>Không cần cung cấp thông tin thanh toán</li>
+          </ul>
+        </div>
+        
+        <h3>Bước 2: Cấu Hình Extension</h3>
+        
+        <h4>1. Mở Trang Options:</h4>
+        <p><strong>Cách 1 - Qua Toolbar:</strong></p>
+        <ul>
+          <li>Right-click vào icon <strong>JaDict</strong> trên thanh công cụ</li>
+          <li>Chọn <strong>Options</strong> (hoặc "Tùy chọn")</li>
+        </ul>
+        
+        <p><strong>Cách 2 - Qua Trang Extensions:</strong></p>
+        <ul>
+          <li>Truy cập <code>chrome://extensions/</code> (hoặc <code>edge://extensions/</code>)</li>
+          <li>Tìm <strong>JaDict</strong> trong danh sách</li>
+          <li>Click <strong>Details</strong> → <strong>Extension options</strong></li>
+        </ul>
+        
+        <h4>2. Nhập Thông Tin:</h4>
+        <p><strong>API Key:</strong></p>
+        <ul>
+          <li>Paste API key vừa copy vào ô <strong>"Gemini API Key"</strong></li>
+          <li>Kiểm tra không có khoảng trắng thừa ở đầu/cuối</li>
+        </ul>
+        
+        <p><strong>Chọn Model:</strong></p>
+        <ul>
+          <li>Mặc định: <strong>gemini-2.5-flash-lite</strong> (Khuyên dùng - nhanh và tiết kiệm)</li>
+          <li>Tùy chọn khác:
+            <ul>
+              <li><code>gemini-2.5-flash</code> - Chất lượng cao hơn, chậm hơn</li>
+              <li><code>gemini-2.5-pro</code> - Chất lượng tốt nhất, tiêu tốn nhiều quota</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h4>3. Lưu Cài Đặt:</h4>
+        <ul>
+          <li>Click nút <strong>Save Settings</strong> (Lưu cài đặt)</li>
+          <li>Chờ thông báo <strong>"Đã lưu cài đặt!"</strong> xuất hiện</li>
+          <li>Đóng trang Options</li>
+        </ul>
+        
+        <h4>4. Kiểm Tra Hoạt Động:</h4>
+        <ul>
+          <li>Mở bất kỳ trang web nào</li>
+          <li>Bôi đen một từ tiếng Anh (ví dụ: "hello")</li>
+          <li>Popup xuất hiện với kết quả dịch</li>
+          <li>Nếu thấy kết quả từ AI → Cấu hình thành công! ✅</li>
+        </ul>
+      </div>
+      
       <div class="card">
         <h2>Mẹo</h2>
         <ul class="tips">
@@ -96,9 +215,15 @@
     <section id="tab-donate" class="tab-panel" data-tab="donate">
       <div class="card center">
         <h2>Ủng hộ JaDict</h2>
-        <p>Huỳnh Quốc Hữu</p>
-        <p>MoMo: 0935725635</p>
-        <p>Cảm ơn bạn đã đồng hành cùng JaDict.</p>
+        <p><strong>Huỳnh Quốc Hữu</strong></p>
+        <p>MoMo: <strong>0935725635</strong></p>
+        
+        <div class="qr-container">
+          <img src="logo/MoMo_QR.jpg" alt="MoMo QR Code" class="qr-code">
+          <p class="qr-hint">Quét mã QR để ủng hộ qua MoMo</p>
+        </div>
+        
+        <p style="margin-top: 24px;">Cảm ơn bạn đã đồng hành cùng JaDict. 💙</p>
       </div>
     </section>
   </div>

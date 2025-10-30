@@ -2,6 +2,26 @@
 
 Tất cả các thay đổi đáng chú ý của dự án này được ghi lại trong tệp này.
 
+## [v0.3.0] - 2025-10-30
+
+### Added
+- **Hướng dẫn API Key trong Options** - Thêm hướng dẫn chi tiết cách tạo Google Gemini API key vào tab Hướng dẫn của trang Options với 5 hình ảnh minh họa từng bước
+- **QR Code Donation** - Thêm QR code MoMo vào tab Ủng hộ để người dùng dễ dàng scan và ủng hộ
+- **Nút Hướng Dẫn Nhanh** - Thêm nút "? Hướng dẫn" nổi bật trong action popup để truy cập nhanh tab Hướng dẫn trong Options
+- **Hash Navigation** - Hỗ trợ deep linking với hash (options.html#guide) để mở trực tiếp tab cụ thể
+
+### Improved
+- **UX Options Page** - Cải thiện giao diện tab Hướng dẫn với notice boxes (warning/info), code styling, và hình ảnh responsive
+- **Action Popup Header** - Thiết kế lại header với layout rõ ràng hơn, phân tách nút Hướng dẫn và Cài đặt tổng
+- **Dark Mode Support** - Tất cả styling mới đều hỗ trợ đầy đủ dark/light mode với CSS variables
+
+## [v0.2.1] - 2025-10-30
+
+### Fixed
+- Sửa lỗi icons không hiển thị trong Firefox (manifest.firefox.json bị thiếu icons section)
+- Sửa lỗi action popup không hoạt động trong Firefox (thiếu web_accessible_resources)
+- Khôi phục và tái tạo manifest.firefox.json với format đúng
+
 ## [v0.2] - 2025-10-29
 
 ### Added
