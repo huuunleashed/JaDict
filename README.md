@@ -2,7 +2,7 @@
 
 **JaDict** là extension trình duyệt thông minh giúp bạn tra từ và dịch câu nhanh chóng chỉ bằng cách bôi đen text trên bất kỳ trang web nào. Với khả năng tra từ **offline hoàn toàn** và tích hợp **Google Gemini AI** cho dịch thuật chất lượng cao, JaDict là công cụ đắc lực cho việc học ngoại ngữ và đọc tài liệu tiếng Anh.
 
-![Version](https://img.shields.io/badge/version-0.2-blue)
+![Version](https://img.shields.io/badge/version-0.4.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Compatible](https://img.shields.io/badge/compatible-Chromium%20|%20Chrome%20|%20Edge%20|%20Firefox-blueviolet)
 
@@ -1309,8 +1309,10 @@ SOFTWARE.
 
 ### 📚 Tài Nguyên Khác
 - **Repository:** [github.com/huuunleashed/jadict](https://github.com/huuunleashed/jadict)
-- **Documentation:** Xem file README này và [CHROMIUM_COMPATIBILITY_NOTES.md](CHROMIUM_COMPATIBILITY_NOTES.md)
-- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
+- **Documentation Hub:** Tham khảo thư mục [docs/](docs/) (ví dụ [Compatibility Notes](docs/CHROMIUM_COMPATIBILITY_NOTES.md))
+- **Changelog:** [docs/CHANGELOG.md](docs/CHANGELOG.md)
+- **Release Notes:** [v0.2](docs/RELEASE_NOTES_v0.2.md) · [v0.3](docs/RELEASE_NOTES_v0.3.md) · [v0.3.1](docs/RELEASE_NOTES_v0.3.1.md)
+- **Privacy Policy:** [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md)
 
 ---
 

@@ -66,27 +66,33 @@ body, html {
 }
 
 #container {
-  padding: 12px 16px;
+  padding: 12px 16px 20px;
   box-sizing: border-box;
   width: 420px;
   min-width: 320px;
   max-width: 1280px;
   min-height: 220px;
   max-height: 800px;
-  overflow-y: auto;
-  overflow-x: hidden;
   border: 1px solid var(--panel-border);
   border-radius: 10px;
   background: linear-gradient(135deg, var(--panel-bg-start) 0%, var(--panel-bg-end) 100%);
   box-shadow: inset 0 1px 0 var(--panel-shadow);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
 }
 
 #content {
+  flex: 1 1 auto;
   word-wrap: break-word;
   word-break: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
 }
 
 #content b {

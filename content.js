@@ -104,6 +104,9 @@ document.addEventListener('mouseup', (e) => {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
     createPopup(selectedText, rect);
+    
+    // Save to recent searches history
+    saveToHistory(selectedText);
   } else {
     // If no text is selected, remove any existing popup
     removePopup();
@@ -268,4 +271,35 @@ window.addEventListener('message', (event) => {
     event.preventDefault();
   }
 }, false);
+
+// --- Save text selection to recent searches history ---
+function saveToHistory(text) {
+  if (!API || !API.storage) return;
+  
+  // Get current recent searches
+  API.storage.local.get(['recentSearches'], (items) => {
+    let recent = items.recentSearches || [];
+    
+    // Remove existing entry for the same query (case-insensitive)
+    recent = recent.filter(item => 
+      item.query.toLowerCase() !== text.toLowerCase()
+    );
+    
+    // Add new entry at the top with placeholder result
+    recent.unshift({
+      query: text,
+      result: {
+        source: 'text-selection',
+        timestamp: Date.now()
+      },
+      timestamp: Date.now()
+    });
+    
+    // Keep only last 10
+    recent = recent.slice(0, 10);
+    
+    // Save back to storage
+    API.storage.local.set({ recentSearches: recent });
+  });
+}
 

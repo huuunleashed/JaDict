@@ -1,10 +1,11 @@
 try {
-  importScripts('settings.js');
+  importScripts('settings.js', 'history.js');
 } catch (error) {
-  console.error('JaDict: Không thể tải settings.js', error);
+  console.error('JaDict: Không thể tải settings hoặc history', error);
 }
 
 const SETTINGS = (typeof self !== 'undefined' && self.JA_SETTINGS) ? self.JA_SETTINGS : null;
+const HISTORY = (typeof self !== 'undefined' && self.JA_HISTORY) ? self.JA_HISTORY : null;
 let extensionSettingsCache = SETTINGS ? SETTINGS.cloneDefaultSettings() : {
   extensionEnabled: true,
   theme: 'light',
@@ -12,6 +13,309 @@ let extensionSettingsCache = SETTINGS ? SETTINGS.cloneDefaultSettings() : {
   synonymLimit: 5,
   antonymLimit: 5
 };
+
+const CHAT_CONTEXT_KEY = 'chatContexts';
+let chatContextsCache = {};
+let chatContextsLoaded = false;
+
+async function loadChatContexts() {
+  if (chatContextsLoaded) {
+    return chatContextsCache;
+  }
+
+  if (!API?.storage?.local) {
+    chatContextsCache = {};
+    chatContextsLoaded = true;
+    return chatContextsCache;
+  }
+
+  try {
+    const stored = await API.storage.local.get([CHAT_CONTEXT_KEY]);
+    chatContextsCache = stored[CHAT_CONTEXT_KEY] && typeof stored[CHAT_CONTEXT_KEY] === 'object'
+      ? stored[CHAT_CONTEXT_KEY]
+      : {};
+  } catch (error) {
+    console.error('JaDict: Không đọc được lịch sử trò chuyện', error);
+    chatContextsCache = {};
+  }
+
+  chatContextsLoaded = true;
+  return chatContextsCache;
+}
+
+async function persistChatContexts() {
+  if (!API?.storage?.local) {
+    return;
+  }
+
+  try {
+    await API.storage.local.set({ [CHAT_CONTEXT_KEY]: chatContextsCache });
+  } catch (error) {
+    console.error('JaDict: Không lưu được lịch sử trò chuyện', error);
+  }
+}
+
+async function getChatContext(tabId) {
+  await loadChatContexts();
+  const key = String(tabId);
+  const context = chatContextsCache[key];
+  if (!Array.isArray(context)) {
+    return [];
+  }
+  return context;
+}
+
+async function setChatContext(tabId, messages) {
+  await loadChatContexts();
+  const key = String(tabId);
+  chatContextsCache[key] = messages;
+  await persistChatContexts();
+}
+
+async function clearChatContext(tabId) {
+  await loadChatContexts();
+  const key = String(tabId);
+  delete chatContextsCache[key];
+  await persistChatContexts();
+}
+
+function trimChatMessages(messages, maxLength = 20) {
+  if (!Array.isArray(messages)) {
+    return [];
+  }
+  if (messages.length <= maxLength) {
+    return messages;
+  }
+  return messages.slice(messages.length - maxLength);
+}
+
+function buildChatSystemPrompts(options = {}) {
+  const prompts = [
+    {
+      role: 'user',
+      parts: [{
+        text: 'Bạn là trợ lý ngôn ngữ Việt - Anh của JaDict. Luôn giao tiếp bằng tiếng Việt thân thiện, dễ hiểu. Khi người dùng cần dịch, hãy cung cấp bản dịch chính xác và có thể kèm ghi chú ngắn gọn bằng tiếng Việt. Với các câu hỏi chung, hãy giải thích rõ ràng bằng tiếng Việt và minh họa bằng ví dụ khi phù hợp.'
+      }]
+    },
+    {
+      role: 'model',
+      parts: [{
+        text: 'Xin chào! Tôi là trợ lý ngôn ngữ của JaDict. Tôi sẽ nói chuyện bằng tiếng Việt và giúp bạn dịch thuật, giải thích từ vựng, cũng như trả lời các câu hỏi về ngôn ngữ. Bạn muốn tôi hỗ trợ điều gì?'
+      }]
+    }
+  ];
+
+  if (options.intent === 'translation' && typeof options.translationGuidance === 'string' && options.translationGuidance.trim().length > 0) {
+    prompts.push({
+      role: 'user',
+      parts: [{ text: options.translationGuidance }]
+    });
+    prompts.push({
+      role: 'model',
+      parts: [{ text: 'Tôi sẽ dịch chính xác và trình bày bản dịch bằng tiếng Việt, đồng thời nêu rõ ngôn ngữ đích nếu cần.' }]
+    });
+  }
+
+  return prompts;
+}
+
+function buildGeminiContentsFromStoredMessages(storedMessages, userMessage, options = {}) {
+  const contents = buildChatSystemPrompts(options);
+
+  if (Array.isArray(storedMessages)) {
+    storedMessages.forEach((msg) => {
+      if (!msg || typeof msg.content !== 'string' || msg.content.trim().length === 0) {
+        return;
+      }
+      const role = msg.role === 'assistant' ? 'model' : 'user';
+      contents.push({
+        role,
+        parts: [{ text: msg.content }]
+      });
+    });
+  }
+
+  if (typeof userMessage === 'string' && userMessage.trim().length > 0) {
+    contents.push({
+      role: 'user',
+      parts: [{ text: userMessage }]
+    });
+  }
+
+  return contents;
+}
+
+function buildTranslationGuidance(rawText) {
+  const detectedLang = detectLanguage(rawText);
+  const sourceLang = detectedLang === 'vi' ? 'vi' : 'en';
+  const targetLang = sourceLang === 'vi' ? 'en' : 'vi';
+  const sourceLabel = sourceLang === 'vi' ? 'tiếng Việt' : 'tiếng Anh';
+  const targetLabel = targetLang === 'vi' ? 'tiếng Việt' : 'tiếng Anh';
+
+  return {
+    guidance: `Người dùng cần bạn dịch đoạn văn sắp tới từ ${sourceLabel} sang ${targetLabel}. Hãy đưa ra bản dịch chính xác, giữ nguyên ý và giọng điệu. Nếu cần, bổ sung ghi chú ngắn gọn bằng tiếng Việt.` ,
+    sourceLang,
+    targetLang
+  };
+}
+
+async function requestGeminiChat({ apiKey, modelId, contents, generationConfig }) {
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents,
+      generationConfig: generationConfig || CHAT_GENERATION_CONFIG
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts?.map((part) => part?.text || '').join('').trim();
+
+  if (!text) {
+    throw new Error('Gemini không trả về nội dung trò chuyện.');
+  }
+
+  return text;
+}
+
+async function streamGeminiChat({ apiKey, modelId, contents, generationConfig, onChunk }) {
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:streamGenerateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents,
+      generationConfig: generationConfig || CHAT_GENERATION_CONFIG
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+  }
+
+  const reader = response.body && typeof response.body.getReader === 'function'
+    ? response.body.getReader()
+    : null;
+
+  if (!reader) {
+    // Streaming not supported, fallback to standard request
+    return requestGeminiChat({ apiKey, modelId, contents, generationConfig });
+  }
+
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+  let fullText = '';
+  let lastErrorMessage = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    let newlineIndex;
+
+    while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+      const line = buffer.slice(0, newlineIndex);
+      buffer = buffer.slice(newlineIndex + 1);
+      const trimmed = line.trim();
+      if (!trimmed) {
+        continue;
+      }
+
+      const payloadText = trimmed.startsWith('data:') ? trimmed.slice(5).trim() : trimmed;
+      if (!payloadText) {
+        continue;
+      }
+
+      let payload;
+      try {
+        payload = JSON.parse(payloadText);
+      } catch (error) {
+        continue;
+      }
+
+      const payloadError = payload?.error;
+      if (payloadError) {
+        lastErrorMessage = payloadError?.message || 'Đã xảy ra lỗi khi gọi Gemini.';
+        continue;
+      }
+
+      const parts = payload?.candidates?.[0]?.content?.parts;
+      if (!Array.isArray(parts)) {
+        continue;
+      }
+
+      const delta = parts.map((part) => (typeof part?.text === 'string' ? part.text : '')).join('');
+      if (!delta) {
+        continue;
+      }
+
+      fullText += delta;
+      if (typeof onChunk === 'function') {
+        onChunk(fullText);
+      }
+    }
+  }
+
+  if (buffer.trim().length > 0) {
+    try {
+      const payloadText = buffer.startsWith('data:') ? buffer.slice(5).trim() : buffer.trim();
+      const payload = JSON.parse(payloadText);
+      const payloadError = payload?.error;
+      if (payloadError) {
+        lastErrorMessage = payloadError?.message || 'Đã xảy ra lỗi khi gọi Gemini.';
+      }
+      const parts = payload?.candidates?.[0]?.content?.parts;
+      if (Array.isArray(parts)) {
+        const delta = parts.map((part) => (typeof part?.text === 'string' ? part.text : '')).join('');
+        if (delta) {
+          fullText += delta;
+          if (typeof onChunk === 'function') {
+            onChunk(fullText);
+          }
+        }
+      }
+    } catch (error) {
+      // Ignore trailing parse errors
+    }
+  }
+
+  if (!fullText) {
+    if (lastErrorMessage) {
+      throw new Error(lastErrorMessage);
+    }
+
+    const fallbackText = await requestGeminiChat({ apiKey, modelId, contents, generationConfig });
+    if (typeof onChunk === 'function' && fallbackText) {
+      onChunk(fallbackText);
+    }
+    return fallbackText;
+  }
+
+  return fullText;
+}
+
+if (HISTORY && typeof HISTORY.init === 'function') {
+  HISTORY.init().catch((error) => {
+    console.error('JaDict: Không khởi tạo được lịch sử', error);
+  });
+}
 
 let settingsReady = SETTINGS
   ? SETTINGS.loadExtensionSettings()
@@ -53,26 +357,107 @@ if (API?.storage?.onChanged && SETTINGS) {
 const GEMINI_MODEL_OPTIONS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro'];
 const GEMINI_MODEL_SET = new Set(GEMINI_MODEL_OPTIONS);
 const GEMINI_DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+const CHAT_GENERATION_CONFIG = {
+  temperature: 0.7,
+  topK: 40,
+  topP: 0.95,
+  maxOutputTokens: 1024
+};
 
-// Listens for messages from popup.js
+// Listens for messages from popup.js and action.js
 API.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('JaDict: Received message', request);
   
-  if (request.type !== "LOOKUP") {
-    return undefined;
+  // Route based on message type
+  if (request.type === "LOOKUP") {
+    // Legacy text selection lookup
+    handleLookup(request.text, sender)
+      .then(result => {
+        console.log('JaDict: Lookup success');
+        sendResponse({ status: "success", data: result });
+      })
+      .catch(error => {
+        console.error("JaDict error:", error);
+        sendResponse({ status: "error", data: error.message });
+      });
+    return true;
+  }
+  
+  if (request.type === "DICTIONARY_LOOKUP") {
+    // New dictionary lookup from action popup
+    handleDictionaryLookup(request.query, request.queryType, sender)
+      .then(result => {
+        console.log('JaDict: Dictionary lookup success');
+        sendResponse({ success: true, data: result });
+      })
+      .catch(error => {
+        console.error("JaDict Dictionary error:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
   }
 
-  handleLookup(request.text, sender)
-    .then(result => {
-      console.log('JaDict: Lookup success');
-      sendResponse({ status: "success", data: result });
-    })
-    .catch(error => {
-      console.error("JaDict error:", error);
-      sendResponse({ status: "error", data: error.message });
-    });
+  if (request.type === "TRANSLATE_TEXT") {
+    handleTranslateText(request.text, sender)
+      .then((result) => {
+        sendResponse({ success: true, data: result });
+      })
+      .catch((error) => {
+        console.error('JaDict: Translation error', error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
   
-  return true; // Keep the message channel open for async response
+  if (request.type === "CHATBOT_MESSAGE") {
+    // Chatbot conversation
+    handleChatMessage(request.message, request.context, sender)
+      .then(result => {
+        console.log('JaDict: Chatbot response success');
+        sendResponse({ success: true, data: result });
+      })
+      .catch(error => {
+        console.error("JaDict Chatbot error:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  if (request.type === "GET_CHAT_CONTEXT") {
+    const tabId = request.tabId;
+    if (typeof tabId === 'undefined' || tabId === null) {
+      sendResponse({ success: false, error: 'Thiếu tabId' });
+      return undefined;
+    }
+    getChatContext(tabId)
+      .then((messages) => {
+        sendResponse({ success: true, messages });
+      })
+      .catch((error) => {
+        console.error('JaDict: Không đọc được lịch sử chat', error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  if (request.type === "CLEAR_CHAT_CONTEXT") {
+    const tabId = request.tabId;
+    if (typeof tabId === 'undefined' || tabId === null) {
+      sendResponse({ success: false, error: 'Thiếu tabId' });
+      return undefined;
+    }
+    clearChatContext(tabId)
+      .then(() => {
+        sendResponse({ success: true });
+      })
+      .catch((error) => {
+        console.error('JaDict: Không xóa được lịch sử chat', error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+  
+  return undefined;
 });
 
 // Provide a toolbar entry point for the options page
@@ -82,6 +467,29 @@ if (ACTION_API && ACTION_API.onClicked) {
   ACTION_API.onClicked.addListener(() => {
     API.runtime.openOptionsPage().catch(err => {
       console.error("Không mở được trang cài đặt:", err);
+    });
+  });
+}
+
+if (API?.runtime?.onConnect) {
+  API.runtime.onConnect.addListener((port) => {
+    if (!port || port.name !== 'chatbot') {
+      return;
+    }
+
+    port.onMessage.addListener((message) => {
+      handleChatPortMessage(port, message).catch((error) => {
+        console.error('JaDict: Lỗi xử lý chat streaming', error);
+        try {
+          port.postMessage({
+            type: 'error',
+            streamId: message?.streamId,
+            error: error?.message || 'Đã xảy ra lỗi không xác định.'
+          });
+        } catch (postError) {
+          console.error('JaDict: Không gửi được thông báo lỗi', postError);
+        }
+      });
     });
   });
 }
@@ -230,15 +638,17 @@ async function lookupLocal(text, detectedLang) {
 
 // --- 4. Gemini API Translation (UPDATED) ---
 
-async function translateWithGemini(text, isWord = false, detectedLangOverride) {
+async function translateWithGemini(text, isWord = false, detectedLangOverride, options = {}) {
   const detectedLang = detectedLangOverride || detectLanguage(text);
+  const includeStructured = options.includeStructured === true;
   let settings;
 
   try {
     settings = await getGeminiSettings();
   } catch (error) {
     console.error(error);
-      return `Lỗi: ${error.message}`;
+    const errorMessage = `Lỗi: ${error.message}`;
+    return includeStructured ? { html: errorMessage, structured: null } : errorMessage;
   }
 
   const { apiKey, modelId } = settings;
@@ -252,19 +662,29 @@ async function translateWithGemini(text, isWord = false, detectedLangOverride) {
 
   try {
     if (isWord) {
-      return await generateWordInsights({ apiKey, modelId, text, detectedLang, limits });
+      const result = await generateWordInsights({ apiKey, modelId, text, detectedLang, limits });
+      return includeStructured ? result : result.html;
     }
 
-    return await generateSentenceInsights({ apiKey, modelId, text, detectedLang, limits });
+    const result = await generateSentenceInsights({ apiKey, modelId, text, detectedLang, limits });
+    return includeStructured ? result : result.html;
 
   } catch (structuredError) {
     console.error("Gọi Gemini dạng cấu trúc thất bại:", structuredError);
 
     try {
-      return await generatePlainTranslation({ apiKey, modelId, text, detectedLang, isWord });
+      const fallbackHtml = await generatePlainTranslation({ apiKey, modelId, text, detectedLang, isWord });
+      if (includeStructured) {
+        return { html: fallbackHtml, structured: null };
+      }
+      return fallbackHtml;
     } catch (fallbackError) {
-        console.error("Gọi Gemini dự phòng thất bại:", fallbackError);
-        return `Lỗi kết nối Gemini: ${fallbackError.message}`;
+      console.error("Gọi Gemini dự phòng thất bại:", fallbackError);
+      const errorMessage = `Lỗi kết nối Gemini: ${fallbackError.message}`;
+      if (includeStructured) {
+        return { html: errorMessage, structured: null };
+      }
+      return errorMessage;
     }
   }
 }
@@ -374,7 +794,7 @@ Provide best translation in ${toLang}.`;
 
   const parsed = parseJsonSafe(rawJson);
   console.log('JaDict: Gemini raw response for word:', text, JSON.stringify(parsed, null, 2));
-  return formatWordInsights({
+  const html = formatWordInsights({
     term: text,
     modelId,
     fromLang,
@@ -382,6 +802,18 @@ Provide best translation in ${toLang}.`;
     data: parsed,
     limits
   });
+
+  return {
+    html,
+    structured: {
+      term: text,
+      modelId,
+      fromLang,
+      toLang,
+      limits,
+      ...parsed
+    }
+  };
 }
 
 async function generateSentenceInsights({ apiKey, modelId, text, detectedLang, limits }) {
@@ -417,12 +849,22 @@ async function generateSentenceInsights({ apiKey, modelId, text, detectedLang, l
   });
 
   const parsed = parseJsonSafe(rawJson);
-  return formatSentenceInsights({
+  const html = formatSentenceInsights({
     modelId,
     fromLang,
     toLang,
     data: parsed
   });
+
+  return {
+    html,
+    structured: {
+      modelId,
+      fromLang,
+      toLang,
+      ...parsed
+    }
+  };
 }
 
 async function generatePlainTranslation({ apiKey, modelId, text, detectedLang, isWord }) {
@@ -701,7 +1143,450 @@ function escapeHtml(value) {
 }
 
 
-// --- 5. Lightweight Language Detection ---
+// --- 5. New Dictionary Lookup Handler (v0.4) ---
+
+/**
+ * Handle dictionary lookup from action popup
+ * @param {string} query - The word/phrase to look up
+ * @param {string} queryType - "word" or "phrase"
+ * @param {Object} sender - Message sender
+ * @returns {Promise<Object>} - Dictionary result
+ */
+async function handleDictionaryLookup(query, queryType, sender) {
+  if (settingsReady) {
+    try {
+      await settingsReady;
+    } catch (error) {
+      // Already logged
+    }
+  }
+
+  if (!extensionSettingsCache.extensionEnabled) {
+    throw new Error('JaDict đang tắt. Mở lại trong action popup.');
+  }
+
+  const trimmedQuery = query.trim();
+
+  if (!trimmedQuery) {
+    throw new Error("Vui lòng nhập từ cần tra cứu.");
+  }
+
+  const detectedLang = detectLanguage(trimmedQuery);
+  const normalizedQuery = trimmedQuery.toLowerCase();
+
+  const sections = [];
+  const dictionaryEntries = [];
+  const definitions = [];
+  const examples = [];
+  const relatedWords = new Set();
+
+  try {
+    const dictionary = await loadDictionary();
+
+    if (dictionary) {
+      if (detectedLang === 'vi') {
+        const viEn = dictionary?.vi_en?.[normalizedQuery];
+        if (viEn) {
+          const heading = `${escapeHtml(trimmedQuery)} - VI sang EN (Từ điển)`;
+          sections.push(buildDictionarySection({
+            heading,
+            body: escapeHtml(viEn)
+          }));
+          dictionaryEntries.push({
+            type: 'vi_en',
+            heading,
+            body: viEn
+          });
+          if (viEn && typeof viEn === 'string') {
+            definitions.push({
+              partOfSpeech: null,
+              definition: viEn,
+              example: null,
+              source: 'dictionary'
+            });
+          }
+        }
+      } else {
+        const enEn = dictionary?.en_en?.[normalizedQuery];
+        if (enEn) {
+          const heading = `${escapeHtml(trimmedQuery)} - EN sang EN (Từ điển)`;
+          sections.push(buildDictionarySection({
+            heading,
+            body: escapeHtml(enEn)
+          }));
+          dictionaryEntries.push({
+            type: 'en_en',
+            heading,
+            body: enEn
+          });
+          if (enEn && typeof enEn === 'string') {
+            definitions.push({
+              partOfSpeech: null,
+              definition: enEn,
+              example: null,
+              source: 'dictionary'
+            });
+          }
+        }
+
+        const enVi = dictionary?.en_vi?.[normalizedQuery];
+        if (enVi) {
+          const heading = `${escapeHtml(trimmedQuery)} - EN sang VI (Từ điển)`;
+          sections.push(buildDictionarySection({
+            heading,
+            body: escapeHtml(enVi)
+          }));
+          dictionaryEntries.push({
+            type: 'en_vi',
+            heading,
+            body: enVi
+          });
+          if (enVi && typeof enVi === 'string') {
+            definitions.push({
+              partOfSpeech: null,
+              definition: enVi,
+              example: null,
+              source: 'dictionary'
+            });
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Local dictionary lookup failed:', error);
+  }
+
+  const aiResult = await translateWithGemini(trimmedQuery, true, detectedLang, { includeStructured: true });
+
+  if (aiResult?.html) {
+    sections.push(aiResult.html);
+  }
+
+  const aiData = aiResult?.structured || null;
+
+  if (aiData && Array.isArray(aiData.entries)) {
+    aiData.entries.forEach((entry) => {
+      const partOfSpeech = entry?.partOfSpeech || null;
+      if (!Array.isArray(entry?.senses)) {
+        return;
+      }
+
+      entry.senses.forEach((sense) => {
+        if (sense?.definition) {
+          const synonyms = Array.isArray(sense.synonyms) ? sense.synonyms.filter((item) => typeof item === 'string' && item.trim().length > 0) : [];
+          const antonyms = Array.isArray(sense.antonyms) ? sense.antonyms.filter((item) => typeof item === 'string' && item.trim().length > 0) : [];
+
+          definitions.push({
+            partOfSpeech,
+            definition: sense.definition,
+            example: Array.isArray(sense.usageExamples) && sense.usageExamples.length > 0
+              ? sense.usageExamples[0]
+              : null,
+            explanation: sense.explanation || null,
+            synonyms,
+            antonyms,
+            source: 'ai'
+          });
+
+          synonyms.forEach((item) => relatedWords.add(item));
+          antonyms.forEach((item) => relatedWords.add(item));
+        }
+
+        if (Array.isArray(sense?.usageExamples)) {
+          sense.usageExamples.forEach((exampleText) => {
+            if (typeof exampleText === 'string' && exampleText.trim().length > 0) {
+              examples.push({
+                text: exampleText,
+                translation: null
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+
+  const html = sections.join('');
+
+  if (!html) {
+    throw new Error('Không có dữ liệu tra cứu.');
+  }
+
+  return {
+    query: trimmedQuery,
+    detectedLang,
+    html,
+    translation: aiData?.translation || null,
+    definitions,
+    examples,
+    relatedWords: Array.from(relatedWords).slice(0, 20),
+    dictionaryEntries,
+    aiData
+  };
+}
+
+async function handleTranslateText(text, sender) {
+  if (settingsReady) {
+    try {
+      await settingsReady;
+    } catch (error) {
+      // Already logged
+    }
+  }
+
+  if (!extensionSettingsCache.extensionEnabled) {
+    throw new Error('JaDict đang tắt. Mở lại trong action popup.');
+  }
+
+  const rawText = typeof text === 'string' ? text : '';
+  const trimmedText = rawText.trim();
+
+  if (!trimmedText) {
+    throw new Error('Vui lòng nhập đoạn văn cần dịch.');
+  }
+
+  const detectedLang = detectLanguage(trimmedText);
+  const targetLang = detectedLang === 'vi' ? 'en' : 'vi';
+
+  const aiResult = await translateWithGemini(trimmedText, false, detectedLang, { includeStructured: true });
+
+  const html = typeof aiResult === 'string'
+    ? aiResult
+    : aiResult?.html || '';
+
+  const structured = aiResult && typeof aiResult === 'object' ? aiResult.structured || null : null;
+
+  if (!html) {
+    throw new Error('Không nhận được bản dịch từ Gemini.');
+  }
+
+  return {
+    type: 'translation',
+    query: trimmedText,
+    detectedLang,
+    targetLang,
+    html,
+    translation: structured?.translation || null,
+    summary: structured?.summary || null,
+    aiData: structured
+  };
+}
+
+// --- 6. Chatbot Message Handler (v0.4) ---
+
+/**
+ * Handle chatbot conversation message
+ * @param {string} message - User message
+ * @param {Array} context - Conversation context
+ * @param {Object} sender - Message sender
+ * @returns {Promise<Object>} - Response object
+ */
+async function handleChatMessage(message, context, sender) {
+  if (settingsReady) {
+    try {
+      await settingsReady;
+    } catch (error) {
+      // Already logged
+    }
+  }
+
+  if (!extensionSettingsCache.extensionEnabled) {
+    throw new Error('JaDict đang tắt. Mở lại trong action popup.');
+  }
+
+  const apiKey = await getApiKey();
+  
+  if (!apiKey) {
+    throw new Error('Chưa cấu hình API key. Vui lòng vào Cài đặt.');
+  }
+
+  const model = extensionSettingsCache.selectedModel && GEMINI_MODEL_SET.has(extensionSettingsCache.selectedModel)
+    ? extensionSettingsCache.selectedModel
+    : GEMINI_DEFAULT_MODEL;
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  // Build conversation history
+  const systemPrompts = buildChatSystemPrompts();
+  const contents = [...systemPrompts];
+
+  // Add conversation context if provided
+  if (context && Array.isArray(context) && context.length > 0) {
+    contents.push(...context);
+  }
+
+  // Add current user message
+  contents.push({
+    role: "user",
+    parts: [{
+      text: message
+    }]
+  });
+
+  const requestBody = {
+    contents: contents,
+    generationConfig: CHAT_GENERATION_CONFIG
+  };
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  
+  if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+    throw new Error('Invalid response from Gemini API');
+  }
+
+  const responseText = data.candidates[0].content.parts[0].text;
+  
+  return {
+    response: responseText,
+    timestamp: Date.now()
+  };
+}
+
+async function handleChatPortMessage(port, message) {
+  if (!message || message.type !== 'chat') {
+    return;
+  }
+
+  const streamId = typeof message.streamId === 'string' ? message.streamId : `stream_${Date.now()}`;
+  const rawText = typeof message.message === 'string' ? message.message.trim() : '';
+  const tabId = typeof message.tabId === 'number' ? message.tabId : parseInt(message.tabId, 10);
+
+  if (!rawText) {
+    port.postMessage({ type: 'error', streamId, error: 'Tin nhắn trống.' });
+    return;
+  }
+
+  if (!Number.isFinite(tabId)) {
+    port.postMessage({ type: 'error', streamId, error: 'Không xác định được tab hiện hành.' });
+    return;
+  }
+
+  if (settingsReady) {
+    try {
+      await settingsReady;
+    } catch (error) {
+      // Already logged
+    }
+  }
+
+  if (!extensionSettingsCache.extensionEnabled) {
+    port.postMessage({ type: 'error', streamId, error: 'JaDict đang tắt. Bật lại trong popup.' });
+    return;
+  }
+
+  let apiSettings;
+  try {
+    apiSettings = await getGeminiSettings();
+  } catch (error) {
+    port.postMessage({ type: 'error', streamId, error: error?.message || 'Chưa cấu hình API key.' });
+    return;
+  }
+
+  const { apiKey, modelId } = apiSettings;
+
+  const existingMessages = await getChatContext(tabId);
+  const userMessage = {
+    role: 'user',
+    content: rawText,
+    timestamp: Date.now()
+  };
+
+  const intent = message.intent === 'translation' ? 'translation' : 'general';
+  const translationContext = intent === 'translation'
+    ? buildTranslationGuidance(rawText)
+    : null;
+
+  const contents = buildGeminiContentsFromStoredMessages(existingMessages, rawText, {
+    intent,
+    translationGuidance: translationContext?.guidance
+  });
+
+  const generationConfig = { ...CHAT_GENERATION_CONFIG };
+  if (intent === 'translation') {
+    generationConfig.temperature = 0.3;
+    generationConfig.topP = 0.8;
+  }
+
+  port.postMessage({ type: 'start', streamId });
+
+  let assistantText = '';
+
+  try {
+    assistantText = await streamGeminiChat({
+      apiKey,
+      modelId,
+      contents,
+      generationConfig,
+      onChunk: (text) => {
+        port.postMessage({ type: 'update', streamId, text });
+      }
+    });
+  } catch (error) {
+    port.postMessage({ type: 'error', streamId, error: error?.message || 'Đã xảy ra lỗi khi gọi Gemini.' });
+    return;
+  }
+
+  const assistantMessage = {
+    role: 'assistant',
+    content: assistantText,
+    timestamp: Date.now()
+  };
+
+  const updatedMessages = trimChatMessages([...existingMessages, userMessage, assistantMessage], 20);
+  await setChatContext(tabId, updatedMessages);
+
+  if (HISTORY && typeof HISTORY.addEntry === 'function') {
+    try {
+      await HISTORY.addEntry({
+        type: 'chat',
+        query: rawText,
+        response: assistantText,
+        timestamp: assistantMessage.timestamp,
+        tabId,
+        metadata: {
+          modelId,
+          intent,
+          sourceLang: translationContext?.sourceLang || null,
+          targetLang: translationContext?.targetLang || null
+        }
+      });
+    } catch (historyError) {
+      console.warn('JaDict: Không lưu được lịch sử trò chuyện', historyError);
+    }
+  }
+
+  port.postMessage({
+    type: 'done',
+    streamId,
+    text: assistantText,
+    messages: updatedMessages
+  });
+}
+
+// --- 7. Helper function to get API key ---
+
+async function getApiKey() {
+  return new Promise((resolve) => {
+    API.storage.local.get(['geminiApiKey'], (result) => {
+      resolve(result.geminiApiKey || null);
+    });
+  });
+}
+
+// --- 8. Lightweight Language Detection ---
 
 function detectLanguage(rawText) {
   if (!rawText) {

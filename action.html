@@ -2,71 +2,234 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="action.css">
+  <title>JaDict</title>
 </head>
 <body>
   <div class="action-container">
+    <!-- Header with Logo and Switches -->
     <header class="action-header">
-      <div class="logo">JaDict</div>
-      <div class="header-buttons">
-        <button id="open-guide" type="button" class="guide-button" title="Hướng dẫn sử dụng">
-          <span class="guide-icon">?</span>
-          <span class="guide-text">Hướng dẫn</span>
+      <div class="logo">
+        <img src="icons/icon-48.png" alt="JaDict" class="logo-icon">
+        <span class="logo-text">JaDict</span>
+      </div>
+      <div class="header-controls">
+        <!-- Dark/Light Mode Toggle -->
+        <button id="theme-toggle" class="theme-button" title="Chuyển chế độ sáng/tối" aria-label="Chuyển chế độ sáng/tối">
+          <span class="theme-icon">☀️</span>
+          <span class="theme-text">Giao diện</span>
         </button>
-        <button id="open-options" type="button" class="link-button">Mở cài đặt tổng</button>
+        <!-- On/Off Switch -->
+        <label class="switch-wrapper" title="Bật/tắt tiện ích">
+          <input type="checkbox" id="global-toggle" class="switch-input">
+          <span class="switch-slider"></span>
+          <span class="switch-label" data-on="BẬT" data-off="TẮT"></span>
+        </label>
       </div>
     </header>
 
-    <section class="section" id="status-section">
-      <h2>Trạng thái</h2>
-      <div class="field">
-        <label class="toggle">
-          <input type="checkbox" id="global-toggle">
-          <span>Bật JaDict toàn bộ</span>
-        </label>
+    <!-- Action Bar with Settings and Guide -->
+    <div class="action-bar">
+      <button id="open-settings" class="action-bar-button">Cài đặt</button>
+      <button id="open-guide" class="action-bar-button">Hướng dẫn</button>
+      <div class="model-selector">
+        <button
+          id="model-toggle"
+          class="action-bar-button action-bar-button--model"
+          type="button"
+          title="Chọn model Gemini"
+          aria-label="Chọn model Gemini"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          Model: --
+        </button>
+        <div id="model-menu" class="model-menu" role="menu" hidden>
+          <button
+            type="button"
+            class="model-menu-item"
+            data-model-id="gemini-2.5-flash-lite"
+            role="menuitemradio"
+            aria-checked="false"
+            tabindex="-1"
+          >
+            <span class="model-menu-item__header">
+              <span class="model-menu-item__title">Flash Lite</span>
+              <span class="model-menu-item__badge">Khuyên dùng</span>
+            </span>
+            <span class="model-menu-item__subtitle">Nhanh &amp; tiết kiệm</span>
+          </button>
+          <button
+            type="button"
+            class="model-menu-item"
+            data-model-id="gemini-2.5-flash"
+            role="menuitemradio"
+            aria-checked="false"
+            tabindex="-1"
+          >
+            <span class="model-menu-item__header">
+              <span class="model-menu-item__title">Flash</span>
+            </span>
+            <span class="model-menu-item__subtitle">Cân bằng tốc độ &amp; chất lượng</span>
+          </button>
+          <button
+            type="button"
+            class="model-menu-item"
+            data-model-id="gemini-2.5-pro"
+            role="menuitemradio"
+            aria-checked="false"
+            tabindex="-1"
+          >
+            <span class="model-menu-item__header">
+              <span class="model-menu-item__title">Pro</span>
+            </span>
+            <span class="model-menu-item__subtitle">Độ chính xác cao nhất</span>
+          </button>
+        </div>
       </div>
-      <div class="field" id="site-toggle-row">
-        <label class="toggle">
-          <input type="checkbox" id="site-toggle">
-          <span>Bật JaDict trên trang này</span>
-        </label>
-        <div class="site-domain" id="site-domain"></div>
-      </div>
-    </section>
+      <div class="version-badge">v0.4.0</div>
+    </div>
 
-    <section class="section" id="theme-section">
-      <h2>Giao diện</h2>
-      <div class="field">
-        <label for="theme-select">Chế độ hiển thị</label>
-        <select id="theme-select">
-          <option value="light">Sáng</option>
-          <option value="dark">Tối</option>
-        </select>
+    <!-- Search Bar -->
+    <div class="search-section">
+      <div class="search-bar">
+        <button
+          id="search-mode-toggle"
+          class="search-mode-button"
+          type="button"
+          title="Chế độ: Dịch đoạn"
+          aria-label="Chế độ tìm kiếm"
+          data-mode="translate"
+        >
+          Dịch đoạn
+        </button>
+        <input 
+          type="text" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="Tìm kiếm từ, câu, hoặc đặt câu hỏi..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button id="search-button" class="search-button" title="Tìm kiếm" aria-label="Tìm kiếm">Tìm</button>
       </div>
-    </section>
+      <div class="search-hint" id="search-hint">
+        <span class="hint-text">Ví dụ: "hello", "Xin chào", hoặc "AI là gì?"</span>
+      </div>
+    </div>
 
-    <section class="section" id="api-section">
-      <h2>Cấu hình Gemini</h2>
-      <div class="field">
-        <label for="api-key">API key</label>
-        <input type="password" id="api-key" placeholder="AIza...">
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-button active" data-tab="dictionary">Từ điển</button>
+      <button class="tab-button" data-tab="chatbot">Trò chuyện</button>
+      <button class="tab-button" data-tab="history">Lịch sử</button>
+    </nav>
+
+    <!-- Tab Content Container -->
+    <div class="tab-content-container">
+      <!-- Dictionary Tab -->
+      <div class="tab-content active" data-tab-content="dictionary">
+        <div class="dictionary-panel">
+          <div class="panel-header">
+            <h3 class="panel-title">Tra cứu nhanh</h3>
+            <button id="clear-recent" class="clear-button" title="Xóa lịch sử tìm kiếm">
+              <span class="button-icon">🗑️</span>
+              Xóa
+            </button>
+          </div>
+          <div class="recent-searches" id="recent-searches">
+            <div class="empty-state">
+              <span class="empty-icon">🔍</span>
+              <p class="empty-text">Chưa có tìm kiếm nào</p>
+              <p class="empty-subtext">Bắt đầu bằng cách tìm kiếm một từ ở trên</p>
+            </div>
+          </div>
+          <div class="dictionary-info">
+            <p class="info-text">
+              <strong>Mẹo:</strong> Bôi đen văn bản trên trang web để tra cứu nhanh, hoặc sử dụng thanh tìm kiếm phía trên.
+            </p>
+          </div>
+        </div>
       </div>
-      <div class="field">
-        <label for="model-select">Mô hình</label>
-        <select id="model-select">
-          <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-          <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
-          <option value="gemini-2.5-pro">gemini-2.5-pro</option>
-        </select>
+
+      <!-- Chatbot Tab -->
+      <div class="tab-content" data-tab-content="chatbot">
+        <div class="chatbot-panel">
+          <div class="panel-header">
+            <h3 class="panel-title">Trợ lý AI</h3>
+            <button id="clear-chat" class="clear-button" title="Xóa cuộc trò chuyện">
+              <span class="button-icon">🗑️</span>
+              Xóa
+            </button>
+          </div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="empty-state">
+              <span class="empty-icon">💬</span>
+              <p class="empty-text">Bắt đầu cuộc trò chuyện</p>
+              <p class="empty-subtext">Hỏi tôi bất cứ điều gì bằng tiếng Anh hoặc tiếng Việt!</p>
+            </div>
+          </div>
+          <div class="chat-input-container">
+            <textarea 
+              id="chat-input" 
+              class="chat-input" 
+              placeholder="Nhập tin nhắn..."
+              rows="1"
+            ></textarea>
+            <button id="chat-send" class="chat-send-button" title="Gửi tin nhắn" aria-label="Gửi">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="footer-actions">
-        <button id="save-credentials" type="button" class="primary">Lưu</button>
-        <div id="status-message" class="status-message"></div>
+
+      <!-- History Tab -->
+      <div class="tab-content" data-tab-content="history">
+        <div class="history-panel">
+          <div class="panel-header">
+            <h3 class="panel-title">Lịch sử</h3>
+            <div class="panel-actions">
+              <button id="export-history" class="clear-button" title="Xuất lịch sử">
+                <span class="button-icon">⬇️</span>
+                Xuất
+              </button>
+              <button id="clear-history" class="clear-button" title="Xóa toàn bộ lịch sử">
+                <span class="button-icon">🗑️</span>
+                Xóa tất cả
+              </button>
+            </div>
+          </div>
+          <div class="history-filters">
+            <button class="filter-button active" data-filter="all">Tất cả</button>
+            <button class="filter-button" data-filter="lookup">Tra cứu</button>
+            <button class="filter-button" data-filter="chat">Trò chuyện</button>
+          </div>
+          <div class="history-search">
+            <input
+              type="search"
+              id="history-search"
+              class="history-search-input"
+              placeholder="Tìm kiếm trong lịch sử..."
+              spellcheck="false"
+            >
+          </div>
+          <div class="history-list" id="history-list">
+            <div class="empty-state">
+              <span class="empty-icon">📜</span>
+              <p class="empty-text">Chưa có lịch sử</p>
+              <p class="empty-subtext">Các tra cứu và trò chuyện của bạn sẽ xuất hiện ở đây</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
+    </div>
   </div>
 
   <script src="settings.js"></script>
+  <script src="history.js"></script>
   <script src="action.js"></script>
 </body>
 </html>
