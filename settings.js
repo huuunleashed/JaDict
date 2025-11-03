@@ -18,7 +18,10 @@
     theme: "light",
     blockedSites: [],
     synonymLimit: 5,
-    antonymLimit: 5
+    antonymLimit: 5,
+    aiConsent: false,        // User consent for AI features
+    offlineMode: false,      // Offline mode (disable AI)
+    firstRunCompleted: false // Track if welcome page was shown
   });
 
   function cloneDefaultSettings() {
@@ -27,7 +30,10 @@
       theme: DEFAULT_SETTINGS.theme,
       blockedSites: [...DEFAULT_SETTINGS.blockedSites],
       synonymLimit: DEFAULT_SETTINGS.synonymLimit,
-      antonymLimit: DEFAULT_SETTINGS.antonymLimit
+      antonymLimit: DEFAULT_SETTINGS.antonymLimit,
+      aiConsent: DEFAULT_SETTINGS.aiConsent,
+      offlineMode: DEFAULT_SETTINGS.offlineMode,
+      firstRunCompleted: DEFAULT_SETTINGS.firstRunCompleted
     };
   }
 
@@ -63,6 +69,18 @@
 
     normalized.synonymLimit = normalizeLimit(raw.synonymLimit, defaults.synonymLimit);
     normalized.antonymLimit = normalizeLimit(raw.antonymLimit, defaults.antonymLimit);
+
+    if (typeof raw.aiConsent === "boolean") {
+      normalized.aiConsent = raw.aiConsent;
+    }
+
+    if (typeof raw.offlineMode === "boolean") {
+      normalized.offlineMode = raw.offlineMode;
+    }
+
+    if (typeof raw.firstRunCompleted === "boolean") {
+      normalized.firstRunCompleted = raw.firstRunCompleted;
+    }
 
     return normalized;
   }

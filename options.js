@@ -35,6 +35,10 @@
   let blacklistList;
   let synonymLimitInput;
   let antonymLimitInput;
+  let offlineModeToggle;
+  let aiConsentCheckbox;
+  let geminiConfigCard;
+  let clearAllDataButton;
 
   let tabButtons = [];
   let tabPanels = [];
@@ -153,6 +157,68 @@
     }
   }
 
+  function updateGeminiCardState() {
+    const offlineMode = offlineModeToggle?.checked || false;
+    const aiConsent = aiConsentCheckbox?.checked || false;
+    
+    if (geminiConfigCard) {
+      if (offlineMode) {
+        geminiConfigCard.classList.add('disabled');
+      } else {
+        geminiConfigCard.classList.remove('disabled');
+      }
+    }
+
+    // Enable/disable API key and model inputs based on consent
+    const shouldEnable = !offlineMode && aiConsent;
+    if (apiKeyInput) apiKeyInput.disabled = !shouldEnable;
+    if (modelSelect) modelSelect.disabled = !shouldEnable;
+    if (saveButton) saveButton.disabled = !shouldEnable;
+    if (aiConsentCheckbox) aiConsentCheckbox.disabled = offlineMode;
+  }
+
+  async function handleClearAllData() {
+    const confirmed = confirm(
+      '⚠️ BẠN CHẮC CHẮN MUỐN XÓA TOÀN BỘ DỮ LIỆU?\n\n' +
+      'Hành động này sẽ xóa:\n' +
+      '- Tất cả cài đặt\n' +
+      '- API key\n' +
+      '- Danh sách chặn\n' +
+      '- Lịch sử tìm kiếm\n' +
+      '- Lịch sử trò chuyện\n\n' +
+      'Hành động này KHÔNG THỂ HOÀN TÁC!'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    // Double confirmation
+    const doubleConfirmed = confirm('Xác nhận lần cuối: Bạn có chắc chắn muốn xóa TOÀN BỘ dữ liệu?');
+    
+    if (!doubleConfirmed) {
+      return;
+    }
+
+    try {
+      clearAllDataButton.disabled = true;
+      clearAllDataButton.textContent = 'Đang xóa...';
+
+      // Clear all storage
+      await API.storage.local.clear();
+
+      alert('✅ Đã xóa toàn bộ dữ liệu thành công!\n\nTrang sẽ tự động tải lại.');
+      
+      // Reload page to reset to defaults
+      window.location.reload();
+    } catch (error) {
+      console.error('JaDict: Không xóa được dữ liệu', error);
+      alert('❌ Có lỗi xảy ra khi xóa dữ liệu. Vui lòng thử lại.');
+      clearAllDataButton.disabled = false;
+      clearAllDataButton.textContent = 'Xóa toàn bộ dữ liệu';
+    }
+  }
+
   async function restoreOptions() {
     try {
       const [settings, gemini] = await Promise.all([
@@ -164,8 +230,20 @@
       themeSelect.value = settings.theme === 'dark' ? 'dark' : 'light';
       setTheme(settings.theme);
 
+      // Restore offline mode and AI consent
+      if (offlineModeToggle) {
+        offlineModeToggle.checked = settings.offlineMode || false;
+      }
+
+      if (aiConsentCheckbox) {
+        aiConsentCheckbox.checked = settings.aiConsent || false;
+      }
+
       apiKeyInput.value = gemini.apiKey;
       modelSelect.value = gemini.model;
+
+      // Update UI state based on offline mode and consent
+      updateGeminiCardState();
 
       renderBlacklist(settings.blockedSites);
 
@@ -238,6 +316,37 @@
       }
     });
 
+    // Offline mode toggle
+    if (offlineModeToggle) {
+      offlineModeToggle.addEventListener('change', async (event) => {
+        const offlineMode = event.target.checked;
+        try {
+          await SETTINGS.saveExtensionSettings({ offlineMode });
+          updateGeminiCardState();
+        } catch (error) {
+          console.error('Không lưu được chế độ offline', error);
+        }
+      });
+    }
+
+    // AI consent checkbox
+    if (aiConsentCheckbox) {
+      aiConsentCheckbox.addEventListener('change', async (event) => {
+        const aiConsent = event.target.checked;
+        try {
+          await SETTINGS.saveExtensionSettings({ aiConsent });
+          updateGeminiCardState();
+        } catch (error) {
+          console.error('Không lưu được trạng thái đồng ý AI', error);
+        }
+      });
+    }
+
+    // Clear all data button
+    if (clearAllDataButton) {
+      clearAllDataButton.addEventListener('click', handleClearAllData);
+    }
+
     saveButton.addEventListener('click', async () => {
       await withStatus(async () => {
         await saveGeminiSettings({
@@ -302,6 +411,10 @@
     blacklistList = document.getElementById('blacklist-list');
     synonymLimitInput = document.getElementById('synonym-limit');
     antonymLimitInput = document.getElementById('antonym-limit');
+    offlineModeToggle = document.getElementById('offline-mode');
+    aiConsentCheckbox = document.getElementById('ai-consent');
+    geminiConfigCard = document.getElementById('gemini-config-card');
+    clearAllDataButton = document.getElementById('clear-all-data');
     tabButtons = Array.from(document.querySelectorAll('.tab-button'));
     tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
 

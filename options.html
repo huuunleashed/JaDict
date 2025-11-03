@@ -38,17 +38,50 @@
       </div>
 
       <div class="card">
-        <h2>Cấu hình Gemini</h2>
+        <h2>Chế độ ngoại tuyến</h2>
+        <label class="toggle">
+          <input type="checkbox" id="offline-mode">
+          <span>Chế độ offline (tắt tính năng AI)</span>
+        </label>
+        <p class="info-text">
+          Khi bật chế độ này, JaDict chỉ sử dụng từ điển offline và KHÔNG gửi dữ liệu tới Google Gemini.
+        </p>
+      </div>
+
+      <div class="card" id="gemini-config-card">
+        <h2>Cấu hình Gemini (Tùy chọn)</h2>
+        
+        <div class="privacy-notice">
+          <h3>⚠️ Thông báo về quyền riêng tư</h3>
+          <p>
+            Khi sử dụng tính năng AI, text bạn chọn sẽ được gửi tới <strong>Google's servers</strong> 
+            thông qua API key <strong>của bạn</strong>. JaDict không lưu trữ hay đọc nội dung này.
+          </p>
+          <p>
+            Đọc chính sách của Google: 
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+              Google Privacy Policy
+            </a>
+          </p>
+        </div>
+
+        <label class="consent-checkbox">
+          <input type="checkbox" id="ai-consent">
+          <span>Tôi đồng ý gửi text được chọn tới Google Gemini API để nhận kết quả dịch thuật từ AI</span>
+        </label>
+
         <label for="api-key">API key</label>
-        <input type="password" id="api-key" placeholder="AIza...">
+        <input type="password" id="api-key" placeholder="AIza..." disabled>
+        
         <label for="model-select">Mô hình</label>
-        <select id="model-select">
+        <select id="model-select" disabled>
           <option value="gemini-2.5-flash">gemini-2.5-flash</option>
           <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
           <option value="gemini-2.5-pro">gemini-2.5-pro</option>
         </select>
+        
         <div class="form-actions">
-          <button id="save-credentials" type="button" class="primary">Lưu</button>
+          <button id="save-credentials" type="button" class="primary" disabled>Lưu</button>
           <span id="status-message" class="status-message"></span>
         </div>
       </div>
@@ -70,6 +103,41 @@
           <button type="submit" class="secondary">Thêm</button>
         </form>
         <ul id="blacklist-list" class="blacklist"></ul>
+      </div>
+
+      <div class="card card-danger">
+        <h2>Quản lý dữ liệu</h2>
+        <p>Xóa toàn bộ dữ liệu local của JaDict (cài đặt, API key, lịch sử, v.v.)</p>
+        
+        <div class="data-info">
+          <h3>Dữ liệu sẽ bị xóa:</h3>
+          <ul>
+            <li>Tất cả cài đặt (theme, ngôn ngữ, giới hạn từ)</li>
+            <li>Google Gemini API key</li>
+            <li>Danh sách trang chặn</li>
+            <li>Lịch sử tìm kiếm</li>
+            <li>Lịch sử trò chuyện với AI</li>
+          </ul>
+          <p class="warning-text">
+            ⚠️ <strong>Hành động này không thể hoàn tác!</strong> Từ điển offline sẽ vẫn được giữ lại.
+          </p>
+        </div>
+        
+        <button id="clear-all-data" type="button" class="danger">Xóa toàn bộ dữ liệu</button>
+      </div>
+
+      <div class="card">
+        <h2>Chính sách quyền riêng tư</h2>
+        <p>
+          JaDict cam kết bảo vệ quyền riêng tư của bạn. Tất cả dữ liệu được lưu trữ 
+          cục bộ trên máy của bạn và không được gửi tới bất kỳ server nào (trừ Google Gemini nếu bạn kích hoạt).
+        </p>
+        <a href="https://github.com/huuunleashed/JaDict/blob/main/docs/PRIVACY_POLICY.md" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="privacy-link">
+          📄 Đọc toàn bộ Chính sách quyền riêng tư
+        </a>
       </div>
     </section>
 

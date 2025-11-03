@@ -340,6 +340,27 @@ const API = (() => {
   return null;
 })();
 
+// --- First Install/Update Detection ---
+if (API?.runtime?.onInstalled) {
+  API.runtime.onInstalled.addListener(async (details) => {
+    try {
+      if (details.reason === 'install') {
+        // First time installation - show welcome page
+        const settings = await SETTINGS.loadExtensionSettings();
+        if (!settings.firstRunCompleted) {
+          const welcomeUrl = API.runtime.getURL('welcome.html');
+          await API.tabs.create({ url: welcomeUrl });
+        }
+      } else if (details.reason === 'update') {
+        // Extension updated - could show changelog (optional)
+        console.log('JaDict: Extension updated to', API.runtime.getManifest().version);
+      }
+    } catch (error) {
+      console.error('JaDict: Error handling onInstalled event', error);
+    }
+  });
+}
+
 if (API?.storage?.onChanged && SETTINGS) {
   API.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local') {
@@ -732,9 +753,20 @@ async function translateWithGemini(text, isWord = false, detectedLangOverride, o
 async function getGeminiSettings() {
   let storage;
   try {
-    storage = await API.storage.local.get(['geminiApiKey', 'geminiModel']);
+    storage = await API.storage.local.get(['geminiApiKey', 'geminiModel', 'extensionSettings']);
   } catch (error) {
     throw new Error('Không đọc được dữ liệu trong trình duyệt.');
+  }
+
+  // Check offline mode
+  const settings = SETTINGS ? SETTINGS.normalizeSettings(storage.extensionSettings) : {};
+  if (settings.offlineMode) {
+    throw new Error('Chế độ offline đang bật. Tắt chế độ này trong Cài đặt để sử dụng AI.');
+  }
+
+  // Check AI consent
+  if (!settings.aiConsent) {
+    throw new Error('Bạn chưa đồng ý sử dụng AI. Vui lòng bật tùy chọn này trong Cài đặt.');
   }
 
   const apiKey = storage.geminiApiKey;

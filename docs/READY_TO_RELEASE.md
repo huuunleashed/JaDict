@@ -1,6 +1,6 @@
-# ✅ HOÀN THÀNH - v0.4.1 Sẵn sàng Release!
+# ✅ HOÀN TẤT - v0.4.1 Sẵn sàng Release!
 
-## 📋 Tóm tắt
+## 🎉 Tất cả đã sẵn sàng!
 
 Release **v0.4.1** (gộp cả v0.4.0) đã hoàn toàn sẵn sàng với:
 - ✅ Code đã commit & push

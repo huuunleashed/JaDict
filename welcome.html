@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chào mừng đến với JaDict</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <div class="welcome-container">
+    <header class="welcome-header">
+      <img src="icons/icon-128.png" alt="JaDict Logo" class="logo">
+      <h1>Chào mừng đến với JaDict! 🎉</h1>
+      <p class="subtitle">Trợ lý tra từ và dịch câu thông minh của bạn</p>
+    </header>
+
+    <section class="welcome-content">
+      <!-- Key Features -->
+      <div class="feature-card">
+        <h2>✨ Tính năng chính</h2>
+        <ul class="feature-list">
+          <li><strong>Tra từ ngoại tuyến:</strong> Từ điển 5MB có sẵn, không cần internet</li>
+          <li><strong>AI dịch thuật:</strong> Tùy chọn sử dụng Google Gemini (cần API key của bạn)</li>
+          <li><strong>Bật/tắt linh hoạt:</strong> Kiểm soát trên từng trang web</li>
+          <li><strong>Giao diện thân thiện:</strong> Popup xuất hiện ngay khi bôi đen text</li>
+        </ul>
+      </div>
+
+      <!-- Privacy & Data Disclosure -->
+      <div class="privacy-card">
+        <h2>🔒 Quyền riêng tư & Dữ liệu của bạn</h2>
+        
+        <div class="disclosure-section">
+          <h3>Những gì JaDict truy cập:</h3>
+          <ul class="disclosure-list">
+            <li>
+              <strong>Text bạn chọn:</strong> Chỉ text bạn bôi đen sẽ được xử lý để tra từ
+              <span class="badge badge-local">Chỉ xử lý cục bộ</span>
+            </li>
+            <li>
+              <strong>Cài đặt cá nhân:</strong> Theme, ngôn ngữ, danh sách trang chặn
+              <span class="badge badge-local">Lưu trên máy bạn</span>
+            </li>
+            <li>
+              <strong>Google Gemini API Key (tùy chọn):</strong> Nếu bạn bật tính năng AI
+              <span class="badge badge-encrypted">Mã hóa trong trình duyệt</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="disclosure-section">
+          <h3>Những gì JaDict KHÔNG làm:</h3>
+          <ul class="disclosure-list no-icon">
+            <li>❌ KHÔNG thu thập thông tin cá nhân (tên, email, địa chỉ)</li>
+            <li>❌ KHÔNG theo dõi lịch sử duyệt web của bạn</li>
+            <li>❌ KHÔNG gửi dữ liệu tới server của chúng tôi (vì không có server!)</li>
+            <li>❌ KHÔNG chia sẻ dữ liệu với bên thứ ba (trừ Google nếu bạn dùng AI)</li>
+          </ul>
+        </div>
+
+        <div class="third-party-notice">
+          <h3>⚠️ Về tính năng AI (Tùy chọn):</h3>
+          <p>
+            Nếu bạn chọn sử dụng Google Gemini AI, text bạn chọn sẽ được gửi tới 
+            <strong>Google's servers</strong> qua API key <strong>của bạn</strong>. 
+            JaDict không làm trung gian, không lưu trữ hay đọc nội dung này.
+          </p>
+          <p>
+            Bạn có thể đọc chính sách bảo mật của Google tại: 
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+              https://policies.google.com/privacy
+            </a>
+          </p>
+          <p class="highlight">
+            💡 <strong>Bạn có thể sử dụng JaDict hoàn toàn ngoại tuyến</strong> mà không cần kích hoạt AI!
+          </p>
+        </div>
+      </div>
+
+      <!-- Permissions Explanation -->
+      <div class="permissions-card">
+        <h2>🛡️ Giải thích các quyền yêu cầu</h2>
+        <table class="permissions-table">
+          <thead>
+            <tr>
+              <th>Quyền</th>
+              <th>Lý do sử dụng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>storage</code> & <code>unlimitedStorage</code></td>
+              <td>Lưu từ điển offline (~5MB) và cài đặt của bạn trên máy</td>
+            </tr>
+            <tr>
+              <td><code>clipboardWrite</code></td>
+              <td>Cho phép bạn copy định nghĩa/bản dịch vào clipboard</td>
+            </tr>
+            <tr>
+              <td><code>tabs</code></td>
+              <td>Phát hiện tab đang mở để tích hợp context menu</td>
+            </tr>
+            <tr>
+              <td><code>&lt;all_urls&gt;</code></td>
+              <td>Cho phép tra từ trên mọi trang web bạn truy cập</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="permissions-note">
+          ℹ️ Bạn có thể tắt JaDict trên các trang cụ thể thông qua danh sách chặn trong Cài đặt.
+        </p>
+      </div>
+
+      <!-- User Control -->
+      <div class="control-card">
+        <h2>🎛️ Bạn có toàn quyền kiểm soát</h2>
+        <ul class="control-list">
+          <li>✅ <strong>Bật/tắt extension:</strong> Theo từng trang hoặc toàn bộ</li>
+          <li>✅ <strong>Offline mode:</strong> Chỉ dùng từ điển offline, không dùng AI</li>
+          <li>✅ <strong>Xóa dữ liệu:</strong> Xóa toàn bộ cài đặt bất cứ lúc nào</li>
+          <li>✅ <strong>Không dùng AI:</strong> Không nhập API key = hoàn toàn offline</li>
+        </ul>
+      </div>
+
+      <!-- Privacy Policy Link -->
+      <div class="privacy-policy-link">
+        <p>
+          📄 Đọc toàn bộ Chính sách quyền riêng tư của chúng tôi tại: 
+          <a href="https://github.com/huuunleashed/JaDict/blob/main/docs/PRIVACY_POLICY.md" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <!-- Accept Button -->
+    <footer class="welcome-footer">
+      <div class="consent-checkbox">
+        <label class="checkbox-container">
+          <input type="checkbox" id="consent-checkbox">
+          <span class="checkmark"></span>
+          <span class="consent-text">
+            Tôi đã đọc và hiểu cách JaDict xử lý dữ liệu. Tôi đồng ý với 
+            <a href="https://github.com/huuunleashed/JaDict/blob/main/docs/PRIVACY_POLICY.md" target="_blank" rel="noopener noreferrer">Chính sách quyền riêng tư</a>.
+          </span>
+        </label>
+      </div>
+      
+      <button id="accept-button" class="accept-button" disabled>
+        Tiếp tục sử dụng JaDict
+      </button>
+
+      <p class="footer-note">
+        Bạn có thể thay đổi cài đặt bất cứ lúc nào trong trang Cài đặt.
+      </p>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+  <script src="welcome.js"></script>
+</body>
+</html>
