@@ -62,8 +62,5 @@
     "page": "options.html",
     "open_in_tab": true
   },
-  "homepage_url": "https://github.com/huuunleashed/JaDict",
-  "privacy_policy": {
-    "url": "https://raw.githubusercontent.com/huuunleashed/JaDict/main/docs/PRIVACY_POLICY.md"
-  }
+  "homepage_url": "https://github.com/huuunleashed/JaDict"
 }
