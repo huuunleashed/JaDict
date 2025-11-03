@@ -46,6 +46,11 @@
         <p class="info-text">
           Khi bật chế độ này, JaDict chỉ sử dụng từ điển offline và KHÔNG gửi dữ liệu tới Google Gemini.
         </p>
+        <div class="notice notice-info">
+          <strong>ℹ️ Lưu ý:</strong> Tính năng từ điển offline hiện đang trong giai đoạn phát triển. 
+          Database từ điển (<code>dictionary.json</code>) chưa hoàn chỉnh và chỉ mang tính chất placeholder 
+          để demo chức năng tra từ cơ bản. Vui lòng sử dụng tính năng AI để có trải nghiệm tốt nhất.
+        </div>
       </div>
 
       <div class="card" id="gemini-config-card">
@@ -105,25 +110,42 @@
         <ul id="blacklist-list" class="blacklist"></ul>
       </div>
 
-      <div class="card card-danger">
+      <div class="card">
         <h2>Quản lý dữ liệu</h2>
         <p>Xóa toàn bộ dữ liệu local của JaDict (cài đặt, API key, lịch sử, v.v.)</p>
         
-        <div class="data-info">
-          <h3>Dữ liệu sẽ bị xóa:</h3>
-          <ul>
-            <li>Tất cả cài đặt (theme, ngôn ngữ, giới hạn từ)</li>
-            <li>Google Gemini API key</li>
-            <li>Danh sách trang chặn</li>
-            <li>Lịch sử tìm kiếm</li>
-            <li>Lịch sử trò chuyện với AI</li>
-          </ul>
-          <p class="warning-text">
-            ⚠️ <strong>Hành động này không thể hoàn tác!</strong> Từ điển offline sẽ vẫn được giữ lại.
-          </p>
-        </div>
+        <details class="data-details">
+          <summary>
+            <span class="summary-icon">📋</span>
+            <span class="summary-text">Xem dữ liệu sẽ bị xóa</span>
+          </summary>
+          <div class="data-details-content">
+            <ul class="data-list">
+              <li>Tất cả cài đặt (theme, ngôn ngữ, giới hạn từ)</li>
+              <li>Google Gemini API key</li>
+              <li>Danh sách trang chặn</li>
+              <li>Lịch sử tìm kiếm</li>
+              <li>Lịch sử trò chuyện với AI</li>
+            </ul>
+            <div class="notice notice-warning">
+              <strong>⚠️ Lưu ý:</strong> Hành động này không thể hoàn tác! Từ điển offline sẽ vẫn được giữ lại.
+            </div>
+          </div>
+        </details>
         
-        <button id="clear-all-data" type="button" class="danger">Xóa toàn bộ dữ liệu</button>
+        <div class="danger-zone">
+          <div class="danger-zone-header">
+            <span class="danger-icon">🗑️</span>
+            <div class="danger-zone-text">
+              <h3>Khu vực nguy hiểm</h3>
+              <p>Hành động dưới đây sẽ xóa vĩnh viễn tất cả dữ liệu của bạn</p>
+            </div>
+          </div>
+          <button id="clear-all-data" type="button" class="btn-danger">
+            <span class="btn-icon">🗑️</span>
+            <span>Xóa toàn bộ dữ liệu</span>
+          </button>
+        </div>
       </div>
 
       <div class="card">
