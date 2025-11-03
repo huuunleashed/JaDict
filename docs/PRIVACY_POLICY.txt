@@ -1,0 +1,174 @@
+PRIVACY POLICY FOR JADICT
+Last Updated: October 30, 2025
+Version: 1.0
+
+=============================================================================
+OVERVIEW
+=============================================================================
+
+JaDict is a browser extension that provides instant dictionary lookup and 
+AI-powered word definitions. We are committed to protecting your privacy 
+and ensuring transparency about our data practices.
+
+KEY PRINCIPLE: JaDict does NOT collect, store, transmit, or share any 
+personal user data with external servers or third parties.
+
+=============================================================================
+WHAT INFORMATION WE ACCESS
+=============================================================================
+
+1. SELECTED TEXT ON WEBPAGES
+   - What: Only the text you manually select/highlight on webpages
+   - Why: To provide dictionary lookup and definition services
+   - Scope: Limited to user-initiated text selection only
+   - Storage: Not stored permanently; processed in real-time and discarded 
+     after display
+   - Transmission: Only sent to Google Gemini API if you choose to use AI 
+     features (using YOUR API key)
+
+2. GOOGLE GEMINI API KEY
+   - What: Your personal Google Gemini API key (if you choose to use AI features)
+   - Why: To authenticate requests to Google's Gemini AI service
+   - Storage: Stored locally in your browser using chrome.storage.local 
+     (encrypted by browser)
+   - Transmission: Only sent to Google's servers as part of API authentication
+   - Control: You can remove or change your API key at any time through the 
+     extension settings
+
+=============================================================================
+WHAT WE STORE LOCALLY
+=============================================================================
+
+All data is stored locally on your device using browser storage APIs. We store:
+
+USER PREFERENCES:
+- Theme preference (Light mode or dark mode)
+- Dictionary language (English-English, English-Vietnamese, or Vietnamese-English)
+- AI model selection (Gemini Flash Lite, Flash, or Pro)
+- Blacklisted websites (URLs where you've chosen to disable the extension)
+- Font size and display preferences
+
+OFFLINE DICTIONARY DATABASE:
+- Size: Approximately 5MB
+- Content: Pre-downloaded dictionary definitions for offline use
+- Purpose: Enables dictionary lookup without internet connectivity
+- Storage: Bundled with the extension, stored in chrome.storage.local
+
+CACHED AI RESPONSES (Optional):
+- What: Previous AI-generated definitions (if caching is enabled)
+- Why: To reduce API calls and improve performance
+- Retention: Cleared when you clear browser data or uninstall the extension
+
+=============================================================================
+THIRD-PARTY SERVICES
+=============================================================================
+
+GOOGLE GEMINI AI API
+- Service Provider: Google LLC
+- Usage: Only when you explicitly enable AI features and provide your own API key
+- Data Sent: Selected text for definition generation
+- Data Flow: Your browser → Google's servers (using YOUR API key)
+- Privacy Policy: https://policies.google.com/privacy
+
+IMPORTANT NOTES:
+- We do NOT act as an intermediary server
+- We do NOT intercept, log, or store API requests/responses
+- You control your API key and can revoke it anytime via Google AI Studio
+  (https://aistudio.google.com/apikey)
+
+=============================================================================
+WHAT WE DO NOT COLLECT
+=============================================================================
+
+JaDict does NOT collect, access, store, or transmit:
+
+✗ Personally Identifiable Information (PII): Names, addresses, phone numbers, 
+  email addresses
+✗ Authentication Information: Passwords, credentials, security questions
+✗ Financial Information: Credit card numbers, bank account details, payment history
+✗ Health Information: Medical records, health data
+✗ Location Data: GPS coordinates, IP addresses, geolocation
+✗ Browsing History: Websites visited, page titles, URLs (except for blacklist feature)
+✗ User Activity Tracking: Mouse movements, clicks, scroll behavior, keystroke logging
+✗ Website Content: Full page content, images, videos (only selected text is processed)
+✗ Personal Communications: Emails, text messages, chat logs
+
+=============================================================================
+DATA SECURITY
+=============================================================================
+
+LOCAL STORAGE SECURITY:
+- All data is stored using browser-provided storage APIs (chrome.storage.local)
+- Browser automatically encrypts storage on disk (OS-level encryption)
+- Data is sandboxed per extension (other extensions cannot access JaDict's data)
+
+API KEY SECURITY:
+- API keys are stored in encrypted browser storage
+- Never transmitted to any server except Google's Gemini API (when you use AI features)
+- You maintain full control over your API key
+
+=============================================================================
+USER RIGHTS AND CONTROL
+=============================================================================
+
+YOU HAVE THE RIGHT TO:
+1. View all stored data through browser developer tools (chrome://extensions)
+2. Delete all data by clearing browser storage or uninstalling the extension
+3. Opt-out of AI features by not providing an API key
+4. Disable the extension on specific websites using the blacklist feature
+5. Export your settings (future feature)
+
+HOW TO DELETE YOUR DATA:
+- Method 1: Uninstall the extension (removes all local data)
+- Method 2: Clear browser data (Chrome Settings → Privacy → Clear browsing data)
+- Method 3: Manually clear extension storage (chrome://extensions → JaDict → 
+  Clear storage data)
+
+=============================================================================
+DATA RETENTION
+=============================================================================
+
+- User Preferences: Retained until you clear browser data or uninstall
+- Dictionary Database: Bundled with extension, removed on uninstall
+- API Key: Retained until you remove it or uninstall the extension
+- Cached AI Responses: Retained until you clear cache or uninstall
+
+=============================================================================
+CHILDREN'S PRIVACY
+=============================================================================
+
+JaDict does not knowingly collect data from children under 13 years of age. 
+Since we do not collect any personal data, the extension is safe for all ages.
+
+=============================================================================
+CHANGES TO THIS PRIVACY POLICY
+=============================================================================
+
+We may update this Privacy Policy from time to time. Changes will be reflected 
+in the "Last Updated" date. Continued use of the extension after changes 
+constitutes acceptance of the updated policy.
+
+=============================================================================
+CONTACT INFORMATION
+=============================================================================
+
+If you have questions or concerns about this Privacy Policy:
+
+- GitHub Repository: https://github.com/huuunleashed/JaDict
+- Submit an Issue: https://github.com/huuunleashed/JaDict/issues
+- Email: [Create an issue on GitHub for privacy concerns]
+
+=============================================================================
+COMPLIANCE
+=============================================================================
+
+This extension complies with:
+- Chrome Web Store Developer Program Policies
+- Firefox Add-on Policies
+- General Data Protection Regulation (GDPR) principles
+- California Consumer Privacy Act (CCPA) principles
+
+=============================================================================
+
+Full privacy policy in Markdown format:
+https://raw.githubusercontent.com/huuunleashed/JaDict/main/docs/PRIVACY_POLICY.md
