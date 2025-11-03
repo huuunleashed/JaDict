@@ -390,7 +390,7 @@
       const hintContent = searchMode === "chat"
         ? '<span class="hint-text">Ví dụ: "Giải thích cấu trúc câu điều kiện loại 2"</span>'
         : '<span class="hint-text">Ví dụ: Dán đoạn tiếng Anh để dịch sang tiếng Việt</span>';
-      searchHint.innerHTML = hintContent;
+      replaceElementHtml(searchHint, hintContent);
       searchHint.dataset.defaultContent = hintContent;
     }
   }
@@ -791,17 +791,18 @@
       const recent = items.recentSearches || [];
       
       if (recent.length === 0) {
-        recentSearches.innerHTML = `
+        const emptyHtml = `
           <div class="empty-state">
             <span class="empty-icon">🔍</span>
             <p class="empty-text">Chưa có tìm kiếm nào</p>
             <p class="empty-subtext">Bắt đầu bằng cách tìm kiếm một từ ở trên</p>
           </div>
         `;
+        replaceElementHtml(recentSearches, emptyHtml);
         return;
       }
       
-      recentSearches.innerHTML = recent.map((item, index) => `
+      const itemsHtml = recent.map((item, index) => `
         <div class="search-item" data-query="${escapeHtml(item.query)}">
           <div class="search-item-content">
             <span class="search-query">${escapeHtml(item.query)}</span>
@@ -810,6 +811,8 @@
           <button class="search-item-delete" data-index="${index}" title="Xóa">×</button>
         </div>
       `).join("");
+
+      replaceElementHtml(recentSearches, itemsHtml);
       
       // Add click handlers
       recentSearches.querySelectorAll(".search-item").forEach(item => {
@@ -868,6 +871,28 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
   }
+
+  // Render sanitized HTML string without touching innerHTML assignments.
+  function replaceElementHtml(target, html) {
+    if (!target) {
+      return;
+    }
+
+    if (!html) {
+      target.replaceChildren();
+      return;
+    }
+
+    try {
+      const range = document.createRange();
+      range.selectNodeContents(target);
+      const fragment = range.createContextualFragment(html);
+      target.replaceChildren(fragment);
+    } catch (error) {
+      console.warn("JaDict: Không thể render HTML an toàn", error);
+      target.replaceChildren(document.createTextNode(html));
+    }
+  }
   
   /**
    * Format timestamp to relative time
@@ -919,12 +944,12 @@
     chatDomMap.clear();
 
     if (!Array.isArray(chatState.messages) || chatState.messages.length === 0) {
-      chatMessages.innerHTML = CHAT_EMPTY_STATE_HTML;
+      replaceElementHtml(chatMessages, CHAT_EMPTY_STATE_HTML);
       return;
     }
 
     const fragment = document.createDocumentFragment();
-    chatMessages.innerHTML = "";
+    chatMessages.replaceChildren();
 
     chatState.messages.forEach((message) => {
       const element = createChatMessageElement(message);
@@ -950,7 +975,8 @@
     if (message.streaming) {
       bubble.classList.add("streaming");
     }
-    bubble.innerHTML = formatChatHtml(message.content, { streaming: message.streaming });
+    const bubbleHtml = formatChatHtml(message.content, { streaming: message.streaming });
+    replaceElementHtml(bubble, bubbleHtml);
 
     container.appendChild(avatar);
     container.appendChild(bubble);
@@ -1246,7 +1272,8 @@
       return;
     }
 
-    bubble.innerHTML = formatChatHtml(text, { streaming: options.streaming === true });
+    const bubbleHtml = formatChatHtml(text, { streaming: options.streaming === true });
+    replaceElementHtml(bubble, bubbleHtml);
     bubble.classList.toggle("streaming", options.streaming === true);
   }
 
@@ -1486,24 +1513,26 @@
     }
 
     if (!HistoryAPI || typeof HistoryAPI.getEntries !== "function") {
-      historyList.innerHTML = `
+      const emptyHtml = `
         <div class="empty-state">
           <span class="empty-icon">📜</span>
           <p class="empty-text">Lịch sử chưa khả dụng</p>
           <p class="empty-subtext">Trình duyệt này không hỗ trợ IndexedDB</p>
         </div>
       `;
+      replaceElementHtml(historyList, emptyHtml);
       return;
     }
 
     if (!historyState.entries || historyState.entries.length === 0) {
-      historyList.innerHTML = `
+      const emptyHistoryHtml = `
         <div class="empty-state">
           <span class="empty-icon">📜</span>
           <p class="empty-text">Chưa có lịch sử</p>
           <p class="empty-subtext">Các tra cứu và trò chuyện của bạn sẽ xuất hiện ở đây</p>
         </div>
       `;
+      replaceElementHtml(historyList, emptyHistoryHtml);
       return;
     }
 
@@ -1518,7 +1547,7 @@
       `;
     }).join("");
 
-    historyList.innerHTML = html;
+    replaceElementHtml(historyList, html);
   }
 
   function groupHistoryEntries(entries) {
@@ -1765,9 +1794,14 @@
     if (typeof input !== "string") {
       return "";
     }
-    const div = document.createElement("div");
-    div.innerHTML = input;
-    return div.textContent || div.innerText || "";
+    try {
+      const parser = new DOMParser();
+      const parsed = parser.parseFromString(input, "text/html");
+      return parsed.body ? parsed.body.textContent || "" : "";
+    } catch (error) {
+      console.warn("JaDict: Không thể strip HTML", error);
+      return "";
+    }
   }
 
   function collapseWhitespace(text) {
@@ -1821,15 +1855,17 @@
     
     // Hide search hint temporarily and show message
     if (searchHint) {
-      const defaultContent = searchHint.dataset.defaultContent || searchHint.innerHTML;
-      searchHint.innerHTML = `
+      const defaultContent = searchHint.dataset.defaultContent || "";
+      const safeMessage = escapeHtml(message);
+      const notificationHtml = `
         <span class="hint-icon">${type === "warning" ? "⚠️" : type === "error" ? "❌" : "ℹ️"}</span>
-        <span class="hint-text">${message}</span>
+        <span class="hint-text">${safeMessage}</span>
       `;
+      replaceElementHtml(searchHint, notificationHtml);
       
       setTimeout(() => {
         const fallback = searchHint.dataset.defaultContent || defaultContent;
-        searchHint.innerHTML = fallback;
+        replaceElementHtml(searchHint, fallback);
       }, 3000);
     }
   }

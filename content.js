@@ -85,6 +85,10 @@ loadInitialSettings();
 
 // --- 1. Listen for text selection ---
 
+// Debounce timer to prevent multiple rapid triggers
+let selectionDebounceTimer = null;
+let lastSelectedText = '';
+
 document.addEventListener('mouseup', (e) => {
   if (!pageEnabled) {
     removePopup();
@@ -92,25 +96,62 @@ document.addEventListener('mouseup', (e) => {
   }
 
   // We don't want to trigger when clicking *inside* our own popup
-  if (e.target.id === POPUP_ID) {
+  const popup = document.getElementById(POPUP_ID);
+  if (popup && (e.target === popup || popup.contains(e.target))) {
     return;
   }
 
-  const selection = window.getSelection();
-  const selectedText = selection.toString().trim();
-
-  // If text is selected, create the popup
-  if (selectedText.length > 0) {
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    createPopup(selectedText, rect);
-    
-    // Save to recent searches history
-    saveToHistory(selectedText);
-  } else {
-    // If no text is selected, remove any existing popup
-    removePopup();
+  // Clear any pending debounce timer
+  if (selectionDebounceTimer) {
+    clearTimeout(selectionDebounceTimer);
+    selectionDebounceTimer = null;
   }
+
+  // Debounce selection handling to avoid race conditions
+  selectionDebounceTimer = setTimeout(() => {
+    const selection = window.getSelection();
+    
+    // Additional validation: ensure selection exists and is not collapsed
+    if (!selection || selection.isCollapsed) {
+      // No selection, remove popup if it exists
+      if (lastSelectedText) {
+        removePopup();
+        lastSelectedText = '';
+      }
+      return;
+    }
+    
+    const selectedText = selection.toString().trim();
+
+    // Ignore very short selections (likely accidental)
+    if (selectedText.length === 0) {
+      if (lastSelectedText) {
+        removePopup();
+        lastSelectedText = '';
+      }
+      return;
+    }
+
+    // Prevent duplicate popups for the same selection
+    if (selectedText === lastSelectedText && document.getElementById(POPUP_ID)) {
+      return;
+    }
+
+    // If text is selected, create the popup
+    if (selectedText.length > 0 && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      
+      // Validate that rect has valid dimensions
+      if (rect.width > 0 && rect.height > 0) {
+        lastSelectedText = selectedText;
+        createPopup(selectedText, rect);
+        
+        // Save to recent searches history
+        saveToHistory(selectedText);
+      }
+    }
+  }, 50); // 50ms debounce delay
 });
 
 // --- 2. Remove popup when clicking elsewhere ---
@@ -136,10 +177,15 @@ document.addEventListener('mousedown', (e) => {
       return;
     }
     
-    // Check if selection is empty (user didn't just select text)
-    if (window.getSelection().toString().trim().length === 0) {
-      removePopup();
-    }
+    // Use a small delay to check selection after the click is processed
+    setTimeout(() => {
+      const selection = window.getSelection();
+      // Check if selection is empty (user didn't just select text)
+      if (!selection || selection.isCollapsed || selection.toString().trim().length === 0) {
+        removePopup();
+        lastSelectedText = '';
+      }
+    }, 10);
   }
 });
 
@@ -226,28 +272,57 @@ function removePopup() {
   if (popup) {
     popup.remove();
   }
+  lastSelectedText = '';
+  
+  // Clear any pending debounce timer
+  if (selectionDebounceTimer) {
+    clearTimeout(selectionDebounceTimer);
+    selectionDebounceTimer = null;
+  }
 }
 
 // --- 4. NEW (and CORRECTED): Listen for resize message from the iframe ---
 window.addEventListener('message', (event) => {
+  // Enhanced security: only process messages with our expected types
+  if (!event.data || typeof event.data.type !== 'string') {
+    return;
+  }
+
   const iframe = document.getElementById(POPUP_ID);
 
   // --- THIS IS THE CORRECTED SECURITY CHECK ---
   // 1. Make sure the iframe exists
   // 2. Make sure the message is from that specific iframe
   // 3. Make sure the message has the correct type
-  if (
-    !iframe || 
-    event.source !== iframe.contentWindow || 
-    !event.data
-  ) {
-    // This is not our message, ignore it
+  if (!iframe || event.source !== iframe.contentWindow) {
+    // This is not our iframe's message, ignore it
     return;
+  }
+  
+  // Additional check: only accept messages from our extension's origin
+  if (API && API.runtime && API.runtime.getURL) {
+    try {
+      const expectedOrigin = new URL(API.runtime.getURL('')).origin;
+      if (event.origin !== expectedOrigin) {
+        return;
+      }
+    } catch (error) {
+      // If we can't verify origin, proceed with caution
+      console.warn('JaDict: Không thể xác minh origin của message', error);
+    }
   }
   
   // Handle resize messages
   if (event.data.type === 'QUICK_DICT_RESIZE') {
     const { width, height } = event.data;
+
+    // Validate dimensions
+    if (typeof width !== 'number' || typeof height !== 'number' || 
+        width <= 0 || height <= 0 || 
+        !isFinite(width) || !isFinite(height)) {
+      console.warn('JaDict: Invalid resize dimensions', width, height);
+      return;
+    }
 
     if (iframe) {
       iframe.style.width = `${Math.ceil(width) + 1}px`;
@@ -257,7 +332,7 @@ window.addEventListener('message', (event) => {
       // Now that we have the *real* size, re-run position logic
       // to check for edge-of-screen collisions
       const selection = window.getSelection();
-      if(selection.rangeCount > 0) {
+      if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         const rect = range.getBoundingClientRect();
         positionPopup(iframe, rect);
@@ -269,6 +344,41 @@ window.addEventListener('message', (event) => {
   if (event.data.type === 'POPUP_CLICK') {
     // Popup is being interacted with, prevent any page-level behavior
     event.preventDefault();
+  }
+  
+  // Handle settings button click from popup iframe
+  if (event.data.type === 'QUICK_DICT_OPEN_SETTINGS') {
+    console.log('JaDict content.js: Received OPEN_SETTINGS message');
+    
+    if (!API || !API.runtime) {
+      console.error('JaDict: API not available in content script');
+      return;
+    }
+    
+    // Try openOptionsPage first
+    if (API.runtime.openOptionsPage) {
+      API.runtime.openOptionsPage().then(() => {
+        console.log('JaDict: Options page opened successfully');
+      }).catch((error) => {
+        console.error('JaDict: openOptionsPage failed', error);
+        
+        // Fallback: Send message to background script
+        if (API.runtime.sendMessage) {
+          API.runtime.sendMessage({
+            type: 'OPEN_OPTIONS_PAGE'
+          }).catch((bgError) => {
+            console.error('JaDict: Background message failed', bgError);
+          });
+        }
+      });
+    } else if (API.runtime.sendMessage) {
+      // If no openOptionsPage, ask background script
+      API.runtime.sendMessage({
+        type: 'OPEN_OPTIONS_PAGE'
+      }).catch((error) => {
+        console.error('JaDict: All methods failed', error);
+      });
+    }
   }
 }, false);
 

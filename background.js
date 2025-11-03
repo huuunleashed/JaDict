@@ -368,6 +368,46 @@ const CHAT_GENERATION_CONFIG = {
 API.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('JaDict: Received message', request);
   
+  // Handle OPEN_OPTIONS_PAGE request
+  if (request.type === "OPEN_OPTIONS_PAGE") {
+    console.log('JaDict: Opening options page from background');
+    
+    if (API.runtime.openOptionsPage) {
+      API.runtime.openOptionsPage().then(() => {
+        console.log('JaDict: Options page opened from background');
+        sendResponse({ success: true });
+      }).catch((error) => {
+        console.error('JaDict: Failed to open options from background', error);
+        
+        // Last resort: try creating a new tab
+        if (API.tabs && API.tabs.create && API.runtime.getURL) {
+          const optionsUrl = API.runtime.getURL('options.html');
+          API.tabs.create({ url: optionsUrl }).then(() => {
+            sendResponse({ success: true });
+          }).catch((tabError) => {
+            console.error('JaDict: Failed to create tab', tabError);
+            sendResponse({ success: false, error: tabError.message });
+          });
+        } else {
+          sendResponse({ success: false, error: error.message });
+        }
+      });
+    } else if (API.tabs && API.tabs.create && API.runtime.getURL) {
+      // No openOptionsPage available, use tabs.create directly
+      const optionsUrl = API.runtime.getURL('options.html');
+      API.tabs.create({ url: optionsUrl }).then(() => {
+        sendResponse({ success: true });
+      }).catch((error) => {
+        console.error('JaDict: Failed to create tab', error);
+        sendResponse({ success: false, error: error.message });
+      });
+    } else {
+      sendResponse({ success: false, error: 'No method available to open options' });
+    }
+    
+    return true; // Keep channel open for async response
+  }
+  
   // Route based on message type
   if (request.type === "LOOKUP") {
     // Legacy text selection lookup

@@ -567,21 +567,44 @@
   }
 
   function renderChatbot() {
-    content.innerHTML = `
-      <div class="search-chat-container">
-        <div class="search-chat-messages" id="chat-msgs"></div>
-        <div class="search-chat-footer">
-          <div class="search-chat-row">
-            <textarea class="search-chat-input" id="chat-input" placeholder="Nhập tin nhắn..." rows="1"></textarea>
-            <button class="search-chat-btn" id="chat-send">Gửi</button>
-          </div>
-        </div>
-      </div>
-    `;
+    if (!content) {
+      return;
+    }
 
-    const chatMsgs = document.getElementById("chat-msgs");
-    const chatInput = document.getElementById("chat-input");
-    const chatSend = document.getElementById("chat-send");
+    const container = document.createElement("div");
+    container.className = "search-chat-container";
+
+    const messagesWrapper = document.createElement("div");
+    messagesWrapper.className = "search-chat-messages";
+    messagesWrapper.id = "chat-msgs";
+
+    const footer = document.createElement("div");
+    footer.className = "search-chat-footer";
+
+    const footerRow = document.createElement("div");
+    footerRow.className = "search-chat-row";
+
+    const chatInput = document.createElement("textarea");
+    chatInput.className = "search-chat-input";
+    chatInput.id = "chat-input";
+    chatInput.placeholder = "Nhập tin nhắn...";
+    chatInput.rows = 1;
+
+    const chatSend = document.createElement("button");
+    chatSend.className = "search-chat-btn";
+    chatSend.id = "chat-send";
+    chatSend.textContent = "Gửi";
+
+    footerRow.appendChild(chatInput);
+    footerRow.appendChild(chatSend);
+    footer.appendChild(footerRow);
+
+    container.appendChild(messagesWrapper);
+    container.appendChild(footer);
+
+    content.replaceChildren(container);
+
+    const chatMsgs = messagesWrapper;
 
     if (currentQuery) {
       addMsg(chatMsgs, "user", currentQuery);
@@ -637,11 +660,20 @@
   }
 
   function showError(message) {
-    content.innerHTML = `
-      <div style="text-align: center; padding: 40px 20px; color: var(--secondary-text);">
-        <p>${escapeHtml(message)}</p>
-      </div>
-    `;
+    if (!content) {
+      return;
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.style.textAlign = "center";
+    wrapper.style.padding = "40px 20px";
+    wrapper.style.color = "var(--secondary-text)";
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = message;
+
+    wrapper.appendChild(paragraph);
+    content.replaceChildren(wrapper);
   }
 
   function escapeHtml(text) {

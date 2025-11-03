@@ -21,7 +21,7 @@ const API = (() => {
 
 // --- 1. Get the selected text from the URL ---
 const urlParams = new URLSearchParams(window.location.search);
-const selectedText = urlParams.get('text');
+const selectedText = urlParams.get('text') ? urlParams.get('text').trim() : '';
 
 // --- 2. Send request to background script ---
 const contentDiv = document.getElementById('content');
@@ -66,13 +66,88 @@ if (API?.storage?.onChanged) {
 }
 
 if (settingsButton) {
-  settingsButton.addEventListener('click', () => {
-    if (!API?.runtime?.openOptionsPage) {
-      return;
+  console.log('JaDict: Settings button found, attaching listeners');
+  
+  // Multi-strategy approach for opening settings
+  const openSettings = (e) => {
+    console.log('JaDict: openSettings called, event type:', e?.type);
+    
+    // Prevent default behavior and stop propagation
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-    API.runtime.openOptionsPage().catch((error) => {
-      console.error('JaDict: Không mở được trang cài đặt', error);
-    });
+    
+    console.log('JaDict: Attempting to open settings...');
+    
+    // Strategy 1: Try postMessage to parent page (works in sandboxed iframes)
+    try {
+      window.parent.postMessage(
+        {
+          type: 'QUICK_DICT_OPEN_SETTINGS'
+        },
+        '*'
+      );
+      console.log('JaDict: PostMessage sent to parent');
+    } catch (error) {
+      console.error('JaDict: PostMessage failed', error);
+    }
+    
+    // Strategy 2: Try direct API call (fallback)
+    if (API?.runtime?.openOptionsPage) {
+      API.runtime.openOptionsPage().catch((error) => {
+        console.error('JaDict: openOptionsPage failed', error);
+        
+        // Strategy 3: Try tabs.create
+        if (API?.runtime?.getURL) {
+          try {
+            const optionsUrl = API.runtime.getURL('options.html');
+            if (typeof browser !== 'undefined' && browser.tabs && browser.tabs.create) {
+              browser.tabs.create({ url: optionsUrl });
+            } else if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+              chrome.tabs.create({ url: optionsUrl });
+            }
+          } catch (fallbackError) {
+            console.error('JaDict: All strategies failed', fallbackError);
+          }
+        }
+      });
+    }
+  };
+  
+  // Add multiple event listeners for maximum compatibility
+  settingsButton.addEventListener('click', openSettings, true); // Use capture phase
+  settingsButton.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+  }, true);
+  settingsButton.addEventListener('mouseup', openSettings, true); // Also try mouseup
+  
+  // Touch events for mobile/tablet
+  settingsButton.addEventListener('touchend', openSettings, true);
+  
+  // Make button focusable and add keyboard support
+  if (!settingsButton.hasAttribute('tabindex')) {
+    settingsButton.setAttribute('tabindex', '0');
+  }
+  
+  settingsButton.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openSettings(e);
+    }
+  });
+  
+  // Visual feedback on interaction
+  settingsButton.addEventListener('pointerdown', () => {
+    settingsButton.style.transform = 'scale(0.95)';
+  });
+  
+  settingsButton.addEventListener('pointerup', () => {
+    settingsButton.style.transform = '';
+  });
+  
+  settingsButton.addEventListener('pointercancel', () => {
+    settingsButton.style.transform = '';
   });
 }
 
@@ -391,7 +466,10 @@ if (typeof ResizeObserver !== 'undefined' && container) {
 }
 
 async function requestLookup() {
-  if (!selectedText) {
+  // Safety check: only proceed if we have valid selected text
+  if (!selectedText || selectedText.trim().length === 0) {
+    contentDiv.textContent = 'Không có từ nào được chọn';
+    resetContainerHeight();
     sendResizeMessage();
     return;
   }
@@ -403,12 +481,19 @@ async function requestLookup() {
     }
 
     const response = await new Promise((resolve, reject) => {
+      // Set a timeout to prevent hanging
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout: Không nhận được phản hồi'));
+      }, 10000); // 10 second timeout
+
       API.runtime.sendMessage(
         {
           type: "LOOKUP",
           text: selectedText
         },
         (response) => {
+          clearTimeout(timeout);
+          
           // Check for runtime errors
           if (API.runtime.lastError) {
             reject(new Error(API.runtime.lastError.message || 'Lỗi kết nối'));
@@ -641,17 +726,28 @@ function sendResizeMessage() {
   if (!container) {
     return;
   }
+  
   const width = Math.ceil(container.offsetWidth);
   const height = Math.ceil(container.offsetHeight);
   
+  // Validate dimensions before sending
+  if (!isFinite(width) || !isFinite(height) || width <= 0 || height <= 0) {
+    console.warn('JaDict: Invalid dimensions for resize', width, height);
+    return;
+  }
+  
   // Post a message to the parent window (content.js)
   // This securely tells the parent page what size the iframe needs to be
-  window.parent.postMessage(
-    {
-      type: 'QUICK_DICT_RESIZE',
-      width,
-      height
-    },
-    '*' // '*' is fine, content.js will validate the message type
-  );
+  try {
+    window.parent.postMessage(
+      {
+        type: 'QUICK_DICT_RESIZE',
+        width,
+        height
+      },
+      '*' // '*' is fine, content.js will validate the message type and origin
+    );
+  } catch (error) {
+    console.error('JaDict: Failed to send resize message', error);
+  }
 }

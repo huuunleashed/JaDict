@@ -296,20 +296,61 @@ body, html {
   border: 1px solid var(--button-border);
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
   color: var(--primary-color);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  
+  /* Critical for clickability in Firefox/Zen Browser */
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 10;
+  
+  /* Prevent text selection and dragging */
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-drag: none;
+  
+  /* Ensure button is part of normal flow */
+  isolation: isolate;
+  
+  /* Touch action for better mobile/touch support */
+  touch-action: manipulation;
+  
+  /* Minimum hit area for better clickability */
+  min-width: 100px;
+  min-height: 32px;
 }
 
 .settings-link:hover {
+  background-color: var(--button-hover);
+  border-color: var(--primary-color);
+}
+
+.settings-link:active {
+  transform: scale(0.96);
   background-color: var(--button-hover);
 }
 
 .settings-link:focus {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+.settings-link:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Ensure button content doesn't interfere with clicks */
+.settings-link * {
+  pointer-events: none;
 }
 
 /* Collapsible Sections */

@@ -2,6 +2,37 @@
 
 Tất cả các thay đổi đáng chú ý của dự án này được ghi lại trong tệp này.
 
+## [v0.4.1] - 2025-11-03
+
+### Fixed - Stability & Firefox Compatibility
+- **Firefox: Nút "Cài đặt tổng" không bấm được** 
+  - Thêm event handlers mạnh mẽ hơn với preventDefault/stopPropagation
+  - Thêm fallback mechanism để mở options page bằng nhiều cách (openOptionsPage → tabs.create → window.open)
+  - Cải thiện CSS với pointer-events, z-index và user-select
+  - Thêm keyboard support (Enter/Space) cho accessibility
+  
+- **Popup tự hiện và quay mòng mòng không lý do**
+  - Thêm debounce mechanism (50ms) cho mouseup event để tránh race conditions
+  - Validate selection state với isCollapsed check
+  - Thêm biến lastSelectedText để tránh duplicate popups
+  - Bổ sung validation cho selectedText trong popup.js (trim và check length)
+  - Cải thiện message validation với origin check và dimension validation
+  
+- **Content.js stability improvements**
+  - Enhanced security checks cho postMessage với origin validation
+  - Thêm timeout (10s) cho lookup requests để tránh hanging
+  - Cải thiện selection validation với rangeCount và rect dimension checks
+  - Cleanup debounce timers khi removePopup()
+  
+- **CSS improvements**
+  - Thêm pointer-events: auto cho iframe và settings button
+  - Thêm user-select: none cho các interactive elements
+  - Thêm :active và :focus-visible states cho better feedback
+
+### Improved
+- **Error handling** - Thêm try-catch blocks và detailed logging
+- **Performance** - Giảm số lần trigger không cần thiết với debouncing và validation
+
 ## [v0.3.1] - 2025-10-30
 
 ### Fixed
